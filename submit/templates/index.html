@@ -1,6 +1,186 @@
-<h1>Code Compiler</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Run Code</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Submit Code | Online Judge</title>
+  <link rel="stylesheet" href="{% static 'tyle.css' %}" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left-panel {
+      width: 40%;
+      background: #fff;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    header h1 {
+      margin: 0 0 10px 0;
+    }
+
+    nav a {
+      margin-right: 15px;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .submission-form {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #editor {
+      height: 60vh;
+      width: 100%;
+      border: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+
+    textarea, select {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100px;
+      padding: 10px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      border: 1px solid #ccc;
+      background: #eee;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .tab.active {
+      background: #fff;
+      border-bottom: none;
+    }
+
+    .tab-content {
+      border: 1px solid #ccc;
+      padding: 10px;
+      display: none;
+      background: #fff;
+      height: 150px;
+      overflow-y: auto;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <h2>Two Sum</h2>
+      <p><strong>Problem:</strong> Given an array of integers, return indices of the two numbers such that they add up to a specific target.</p>
+      <p>You may assume that each input would have exactly one solution, and you may not use the same element twice.</p>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <form method="post" class="submission-form" id="submission-form">
+        {% csrf_token %}
+
+        <label for="language">Language:</label>
+        <select name="language" id="language">
+          <option value="python" {% if submission.language == "python" %}selected{% endif %}>Python</option>
+          <option value="cpp" {% if submission.language == "cpp" %}selected{% endif %}>C++</option>
+          <option value="java" {% if submission.language == "java" %}selected{% endif %}>Java</option>
+        </select>
+
+        <input type="hidden" name="code" id="code-hidden">
+
+        <div id="editor"></div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="showTab('input')">Input</div>
+          <div class="tab" onclick="showTab('output')">Output</div>
+        </div>
+
+        <div id="input" class="tab-content active">
+          <textarea name="input_data" id="input_data" placeholder="Custom Input...">{{ submission.input_data|default_if_none:'' }}</textarea>
+        </div>
+
+        <div id="output" class="tab-content">
+          <pre>{{ output|default:"No output yet." }}</pre>
+        </div>
+
+        <button type="submit">Run Code</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+    require(["vs/editor/editor.main"], function () {
+      window.editor = monaco.editor.create(document.getElementById('editor'), {
+        value: `{% if submission %}{{ submission.code|escapejs }}{% else %}// write your code here...{% endif %}`,
+        language: document.getElementById("language").value || "python",
+        theme: "vs-dark",
+        automaticLayout: true
+      });
+    });
+
+    document.getElementById('submission-form').addEventListener('submit', function () {
+      document.getElementById('code-hidden').value = window.editor.getValue();
+    });
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.querySelector('.tab[onclick="showTab(\'' + tabId + '\')"]').classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

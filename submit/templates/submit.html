@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+<main class="submit-container">
+  <h2>Problem #{{ problem.id }} - {{ problem.title }}</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    <label for="language">Language:</label>
+    <select name="language" required>
+      <option value="cpp">C++</option>
+      <option value="java">Java</option>
+      <option value="python">Python</option>    
+    </select>
+
+    <label for="code">Your Code:</label>
+    <textarea name="code" rows="20" required placeholder="Write your code here..."></textarea>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  {% if result %}
+  <div class="submission-result">
+    <h3>Result:</h3>
+    <pre>{{ result }}</pre>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}

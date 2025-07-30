@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Code</title>
+    <link rel="stylesheet" href="{% static 'judge/css/style.css' %}">
+</head>
+<body>
+    <h1>Submit Code</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Run Code</button>
+    </form>
+
+    {% if output %}
+        <h3>Output:</h3>
+        <pre>{{ output }}</pre>
+    {% endif %}
+</body>
+</html>

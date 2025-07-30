@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 
 def submit(request):
+    print("here")
     if request.method == 'POST':
         form = CodeSubmissionForm(request.POST)
         if form.is_valid():
@@ -18,17 +19,26 @@ def submit(request):
                 submission.language,submission.code,submission.input_data
             )
             submission.output_data = output
-            submission.save
-            return render(request, "result.html",{"submission" : submission})
-        
+            submission.save()
+            print(submission.output_data)
+            return render(request, "index.html", {
+                "form": form,
+                "output": output,  
+                "submission": submission,
+            })
+        else:
+            print("Form errors:", form.errors)
+
+    
     else:
         form = CodeSubmissionForm()
     return render(request,"index.html",{"form":form})
 
 
 def run_code(language,code,input_data):
+    print("running")
     project_path = Path(settings.BASE_DIR)
-    directories = ["codes", "inputs", "outputs"]
+    directories = ["codes", "inputs",   "outputs"]
 
     for directory in directories:
         dir_path = project_path / directory
@@ -71,7 +81,7 @@ def run_code(language,code,input_data):
                         stdin=input_file,
                         stdout=output_file,
                     )
-    elif language == "py":
+    elif language == "py" or "python":
         # Code for executing Python script
         with open(input_file_path, "r") as input_file:
             with open(output_file_path, "w") as output_file:
