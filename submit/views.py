@@ -1,40 +1,43 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from submit.forms import CodeSubmissionForm
 from django.conf import settings
+from .models import Problem
 import os
 import uuid
 import subprocess
 from pathlib import Path
 
-def submit(request):
-    print("here")
+@login_required
+def submit(request, slug=None):
+    problem = None
+    output = None
+
+    if slug:
+        problem = get_object_or_404(Problem, slug=slug)
+
     if request.method == 'POST':
         form = CodeSubmissionForm(request.POST)
         if form.is_valid():
             submission = form.save()
-            print(submission.language)
-            print(submission.code)
             output = run_code(
-                submission.language,submission.code,submission.input_data
+                submission.language,
+                submission.code,
+                submission.input_data
             )
             submission.output_data = output
             submission.save()
-            print(submission.output_data)
-            return render(request, "index.html", {
-                "form": form,
-                "output": output,  
-                "submission": submission,
-            })
-        else:
-            print("Form errors:", form.errors)
-
-    
     else:
         form = CodeSubmissionForm()
-    return render(request,"index.html",{"form":form})
 
+    return render(request, "index.html", {
+        "form": form,
+        "output": output,
+        "problem": problem
+    })
 
+@login_required
 def run_code(language,code,input_data):
     print("running")
     project_path = Path(settings.BASE_DIR)
@@ -96,3 +99,15 @@ def run_code(language,code,input_data):
         output_data = output_file.read()
 
     return output_data
+
+
+@login_required
+def problem_list(request):
+    print("view found")
+    problems = Problem.objects.all().order_by('id')
+    return render(request, "problems.html", {"problems": problems})
+
+@login_required
+def problem_detail(request, slug):
+    problem = get_object_or_404(Problem, slug=slug)
+    return render(request, "submit/problem_detail.html", {"problem": problem})

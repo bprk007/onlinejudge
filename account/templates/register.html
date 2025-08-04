@@ -8,6 +8,24 @@
       rel="stylesheet"
     />
     <title>Registration Form</title>
+    <script>
+      function validateForm() {
+        var password = document.getElementById("password").value;
+        var confirm = document.getElementById("confirmPassword").value;
+        if (password !== confirm) {
+          alert("Passwords do not match!");
+          return false;
+        }
+        return true;
+      }
+
+      function togglePassword() {
+        const pwd = document.getElementById("password");
+        const confirmPwd = document.getElementById("confirmPassword");
+        pwd.type = pwd.type === "password" ? "text" : "password";
+        confirmPwd.type = confirmPwd.type === "password" ? "text" : "password";
+      }
+    </script>
   </head>
   <body>
     <div class="container mt-5">
@@ -16,55 +34,81 @@
         class="col-6 mx-auto card p-3 shadow-lg"
         method="post"
         enctype="multipart/form-data"
+        onsubmit="return validateForm()"
       >
         {% csrf_token %}
-        <!-- CSRF token for security -->
 
-        <!-- Registration form heading -->
         <h1 style="text-align: center">
-          <span style="color: green">Mysite</span>
+          <span style="color: rgb(27, 73, 126)">Online Judge</span>
         </h1>
         <h3>Register</h3>
         <hr />
 
-        <!-- Display error/success messages -->
         {% if messages %}
         <div class="alert alert-primary" role="alert">
           {% for message in messages %} {{ message }} {% endfor %}
         </div>
         {% endif %}
 
-        <!-- Username input field -->
         <div class="form-group">
-          <label for="exampleInputEmail1">Username</label>
+          <label for="username">Username</label>
           <input
             type="text"
             class="form-control"
             name="username"
-            id="exampleInputEmail1"
-            aria-describedby="emailHelp"
+            id="username"
             placeholder="Enter username"
             required
           />
         </div>
 
-        <!-- Password input field -->
         <div class="form-group">
-          <label for="exampleInputPassword1">Password</label>
+          <label for="password">Password</label>
           <input
             type="password"
             class="form-control"
             name="password"
-            id="exampleInputPassword1"
+            id="password"
             placeholder="Password"
+            required
+          />
+          <!-- Password guidelines -->
+          <small class="form-text text-muted mt-1">
+            Your password must contain:
+            <ul class="ml-3">
+              <li>At least 8 characters</li>
+              <li>At least one uppercase letter (A–Z)</li>
+              <li>At least one lowercase letter (a–z)</li>
+              <li>At least one number (0–9)</li>
+              <li>At least one special character (e.g., @, #, $, etc.)</li>
+            </ul>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Re-enter Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="confirmPassword"
+            placeholder="Re-enter Password"
             required
           />
         </div>
 
-        <!-- Link to login page for users who already have an account -->
-        <p>Already have an account <a href="/auth/login/">Login</a></p>
+        <!-- Show password toggle -->
+        <div class="form-group form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="showPassword"
+            onclick="togglePassword()"
+          />
+          <label class="form-check-label" for="showPassword">Show Passwords</label>
+        </div>
 
-        <!-- Submit button -->
+        <p>Already have an account? <a href="/auth/login/">Login</a></p>
+
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>

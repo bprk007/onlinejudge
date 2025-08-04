@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Submit Code | Online Judge</title>
-  <link rel="stylesheet" href="{% static 'tyle.css' %}" />
+
   <style>
     * {
       box-sizing: border-box;
@@ -17,9 +17,30 @@
       background: #f2f2f2;
     }
 
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #343a40;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      z-index: 1000;
+    }
+
+    header .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
     .container {
       display: flex;
-      height: 100vh;
+      height: calc(100vh - 60px);
+      margin-top: 60px;
     }
 
     .left-panel {
@@ -36,16 +57,35 @@
       flex-direction: column;
       overflow: hidden;
       padding: 20px;
+      position: relative;
     }
 
-    header h1 {
-      margin: 0 0 10px 0;
+    .language-selector {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 10px;
     }
 
-    nav a {
-      margin-right: 15px;
-      text-decoration: none;
-      color: #007bff;
+    .language-selector select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: #1e1e1e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+      font-family: monospace;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 0 0 1px #444;
+      transition: background-color 0.2s ease;
+    }
+
+    .language-selector select:hover {
+      background-color: #2a2a2a;
     }
 
     .submission-form {
@@ -62,7 +102,7 @@
       flex-shrink: 0;
     }
 
-    textarea, select {
+    textarea {
       padding: 10px;
       width: 100%;
       border: 1px solid #ccc;
@@ -111,15 +151,34 @@
       display: block;
     }
   </style>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
 </head>
 <body>
+
+  <header>
+    <div class="title">Online Judge</div>
+    <a href="{% url 'logout' %}" title="Logout" style="color: white; text-decoration: none;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 14s5-3 5-7-2.5-6-5-6-5 2.5-5 6 5 7 5 7z"/>
+        <path d="M8 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+      </svg>
+    </a>
+  </header>
+
   <div class="container">
     <!-- LEFT PANEL -->
     <div class="left-panel">
-      <h2>Two Sum</h2>
-      <p><strong>Problem:</strong> Given an array of integers, return indices of the two numbers such that they add up to a specific target.</p>
-      <p>You may assume that each input would have exactly one solution, and you may not use the same element twice.</p>
+      {% if problem %}
+        <h2>{{ problem.title }}</h2>
+        <p><strong>Slug:</strong> {{ problem.slug }}</p>
+        <p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
+        <hr>
+        <p>{{ problem.description|linebreaks }}</p>
+      {% else %}
+        <h2>No Problem Selected</h2>
+        <p>Use the editor freely or go to <a href="{% url 'problem_list' %}">Problems List</a>.</p>
+      {% endif %}
     </div>
 
     <!-- RIGHT PANEL -->
@@ -127,15 +186,15 @@
       <form method="post" class="submission-form" id="submission-form">
         {% csrf_token %}
 
-        <label for="language">Language:</label>
-        <select name="language" id="language">
-          <option value="python" {% if submission.language == "python" %}selected{% endif %}>Python</option>
-          <option value="cpp" {% if submission.language == "cpp" %}selected{% endif %}>C++</option>
-          <option value="java" {% if submission.language == "java" %}selected{% endif %}>Java</option>
-        </select>
+        <div class="language-selector">
+          <select name="language" id="language">
+            <option value="python" {% if submission.language == "python" %}selected{% endif %}>Python</option>
+            <option value="cpp" {% if submission.language == "cpp" %}selected{% endif %}>C++</option>
+            <option value="java" {% if submission.language == "java" %}selected{% endif %}>Java</option>
+          </select>
+        </div>
 
         <input type="hidden" name="code" id="code-hidden">
-
         <div id="editor"></div>
 
         <div class="tabs">

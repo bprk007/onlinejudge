@@ -18,7 +18,7 @@
         enctype="multipart/form-data"
       >
         <h1 style="text-align: center">
-          <span style="color: green">Mysite</span>
+          <span style="color: rgb(16, 96, 121)">Online Judge</span>
         </h1>
 
         {% csrf_token %}
@@ -62,12 +62,30 @@
           />
         </div>
 
+        <!-- Show password toggle -->
+        <div class="form-group form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="showPassword"
+            onclick="togglePassword()"
+          />
+          <label class="form-check-label" for="showPassword">Show Password</label>
+        </div>
+
         <!-- Link to registration page -->
-        <p>Don't have an account <a href="/auth/register/">Register</a></p>
+        <p>Don't have an account? <a href="/auth/register/">Register</a></p>
 
         <!-- Submit button -->
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
+
+    <script>
+      function togglePassword() {
+        const pwd = document.getElementById("exampleInputPassword1");
+        pwd.type = pwd.type === "password" ? "text" : "password";
+      }
+    </script>
   </body>
 </html>
