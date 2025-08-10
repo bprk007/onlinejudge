@@ -55,7 +55,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: auto;
       padding: 20px;
       position: relative;
     }
@@ -96,7 +96,7 @@
     }
 
     #editor {
-      height: 60vh;
+      height: 50vh;
       width: 100%;
       border: 1px solid #ccc;
       flex-shrink: 0;
@@ -200,17 +200,34 @@
         <div class="tabs">
           <div class="tab active" onclick="showTab('input')">Input</div>
           <div class="tab" onclick="showTab('output')">Output</div>
+          <div class="tab" onclick="showTab('verdict')">Verdict</div>
         </div>
 
         <div id="input" class="tab-content active">
-          <textarea name="input_data" id="input_data" placeholder="Custom Input...">{{ submission.input_data|default_if_none:'' }}</textarea>
+          <textarea name="input_data" id="input_data" placeholder="Custom Input...">{{ input|default_if_none:'' }}</textarea>
         </div>
 
         <div id="output" class="tab-content">
           <pre>{{ output|default:"No output yet." }}</pre>
         </div>
+        <div id="verdict" class="tab-content">
+            {% if verdicts %}
+              <ul style="list-style:none; padding-left:0;">
+                {% for v in verdicts %}
+                <li style="color:{% if v.passed %}green{% else %}red{% endif %};">
+                    Test case {{ forloop.counter }}: {{ v.message }}
+                  </li>
+                  
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>No verdict yet.</p>
+            {% endif %}
+        </div>
+          
+        <button type="submit" name="action" value="run">Run Code</button>
+        <button type="submit" name="action" value="submit">Submit</button>
 
-        <button type="submit">Run Code</button>
       </form>
     </div>
   </div>

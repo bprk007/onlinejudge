@@ -1,0 +1,5 @@
+a = input()
+if(a.lower() == a[::-1].lower()):
+    print("YES")
+else:
+    print("NO")

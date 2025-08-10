@@ -10,7 +10,9 @@ for item in data:
         defaults={
             "title": item["title"],
             "difficulty": item["difficulty"],
-            "description": item["description"]
+            "description": item["description"],
+            "example_input": item["example_input"],
+            "test_cases": item["test_cases"]
         }
     )
     print(f"{'Created' if created else 'Skipped'}: {problem.title}")

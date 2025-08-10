@@ -13,7 +13,8 @@ from pathlib import Path
 def submit(request, slug=None):
     problem = None
     output = None
-
+    action = request.POST.get("action")
+    verdicts = []
     if slug:
         problem = get_object_or_404(Problem, slug=slug)
 
@@ -21,23 +22,46 @@ def submit(request, slug=None):
         form = CodeSubmissionForm(request.POST)
         if form.is_valid():
             submission = form.save()
-            output = run_code(
-                submission.language,
-                submission.code,
-                submission.input_data
-            )
-            submission.output_data = output
-            submission.save()
+        if action == "run":
+            
+                submission.input_data = problem.example_input
+                output = run_code(
+                    submission.language,
+                    submission.code,
+                    submission.input_data
+                )
+                submission.output_data = output
+                submission.save()
+
+        elif action == "submit":
+            test_cases = problem.test_cases
+            
+            for idx,tc in enumerate(test_cases,start=1):
+                output = run_code(
+                    submission.language,
+                    submission.code,
+                    tc["input"]
+                )
+                passed = (output.strip() == tc["expected_output"].strip())
+                verdicts.append({
+                    "passed" : passed,
+                    "message": f"Test case {idx} {'passed' if passed else 'failed'}"
+                })
+
+
     else:
         form = CodeSubmissionForm()
 
     return render(request, "index.html", {
         "form": form,
         "output": output,
-        "problem": problem
+        "problem": problem,
+        "input":problem.example_input,
+        "verdicts":verdicts,
+        "submission":submission
     })
 
-@login_required
+
 def run_code(language,code,input_data):
     print("running")
     project_path = Path(settings.BASE_DIR)
