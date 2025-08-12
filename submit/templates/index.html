@@ -96,7 +96,7 @@
     }
 
     #editor {
-      height: 50vh;
+      height: 55vh;
       width: 100%;
       border: 1px solid #ccc;
       flex-shrink: 0;
@@ -156,22 +156,44 @@
 </head>
 <body>
 
-  <header>
+ <header>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <div style="display: flex; align-items: center; gap: 10px;">
+
     <div class="title">Online Judge</div>
-    <a href="{% url 'logout' %}" title="Logout" style="color: white; text-decoration: none;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M8 14s5-3 5-7-2.5-6-5-6-5 2.5-5 6 5 7 5 7z"/>
-        <path d="M8 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-      </svg>
-    </a>
-  </header>
+
+    {% if prev_slug %}
+      <a href="{% url 'problem_detail' prev_slug %}" title="Previous Problem" style="color: white; font-size: 20px;">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+    {% else %}
+      <span style="color: gray; font-size: 20px;">&#8592;</span>
+    {% endif %}
+
+    
+
+    {% if next_slug %}
+      <a href="{% url 'problem_detail' next_slug %}" title="Next Problem" style="color: white; font-size: 20px;">
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    {% else %}
+      <span style="color: gray; font-size: 20px;">&#8594;</span>
+    {% endif %}
+  </div>
+
+  <a href="{% url 'logout' %}" title="Logout" style="color: white; text-decoration: none;">
+    <i class="fa-solid fa-user"></i>
+  </a>
+</header>
+
 
   <div class="container">
     <!-- LEFT PANEL -->
     <div class="left-panel">
       {% if problem %}
         <h2>{{ problem.title }}</h2>
-        <p><strong>Slug:</strong> {{ problem.slug }}</p>
+        
         <p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
         <hr>
         <p>{{ problem.description|linebreaks }}</p>
@@ -224,39 +246,53 @@
               <p>No verdict yet.</p>
             {% endif %}
         </div>
-          
+        <div style="display: flex; gap: 10px;">
         <button type="submit" name="action" value="run">Run Code</button>
         <button type="submit" name="action" value="submit">Submit</button>
-
+          </div>
       </form>
     </div>
   </div>
 
   <script>
-    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-    require(["vs/editor/editor.main"], function () {
-      window.editor = monaco.editor.create(document.getElementById('editor'), {
-        value: `{% if submission %}{{ submission.code|escapejs }}{% else %}// write your code here...{% endif %}`,
-        language: document.getElementById("language").value || "python",
-        theme: "vs-dark",
-        automaticLayout: true
-      });
+  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+  require(["vs/editor/editor.main"], function () {
+    const languageSelector = document.getElementById("language");
+
+    // Create Monaco editor
+    window.editor = monaco.editor.create(document.getElementById('editor'), {
+      value: `{% if submission %}{{ submission.code|escapejs }}{% else %}# write your code here...{% endif %}`,
+      language: languageSelector.value || "python",
+      theme: "vs-dark",
+      automaticLayout: true
     });
 
-    document.getElementById('submission-form').addEventListener('submit', function () {
-      document.getElementById('code-hidden').value = window.editor.getValue();
+    // Listen for language change
+    languageSelector.addEventListener("change", function () {
+      monaco.editor.setModelLanguage(window.editor.getModel(), this.value);
+      // Optionally, reset code comment template for selected language
+      if (this.value === "python") {
+        window.editor.setValue("# write your code here...");
+      } else if (this.value === "cpp") {
+        window.editor.setValue("// write your code here...");
+      } else if (this.value === "java") {
+        window.editor.setValue("// write your code here...");
+      }
     });
+  });
 
-    function showTab(tabId) {
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
-      document.querySelector('.tab[onclick="showTab(\'' + tabId + '\')"]').classList.add('active');
-      document.getElementById(tabId).classList.add('active');
-    }
-  </script>
+  // Handle form submit
+  document.getElementById('submission-form').addEventListener('submit', function () {
+    document.getElementById('code-hidden').value = window.editor.getValue();
+  });
+
+  function showTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelector('.tab[onclick="showTab(\'' + tabId + '\')"]').classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+</script>
+
 </body>
 </html>

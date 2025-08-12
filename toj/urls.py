@@ -33,4 +33,5 @@ urlpatterns = [
     path("submit/", include("submit.urls")),
     path("problems/", views.problem_list, name="problem_list"),
     path("problems/<slug:slug>/", views.submit, name="submit_with_problem"),
+    path("problems/<slug:slug>/", views.problem_detail, name="problem_detail")
 ]

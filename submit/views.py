@@ -15,9 +15,22 @@ def submit(request, slug=None):
     output = None
     action = request.POST.get("action")
     verdicts = []
-    if slug:
-        problem = get_object_or_404(Problem, slug=slug)
+    submission = None
+    prev_slug = None
+    next_slug = None
 
+    if slug:
+        problems = list(Problem.objects.order_by("id"))
+        current_index = next((i for i, p in enumerate(problems) if p.slug == slug), None)
+
+        if current_index is not None:
+            if current_index > 0:
+                prev_slug = problems[current_index - 1].slug
+            if current_index < len(problems) - 1:
+                next_slug = problems[current_index + 1].slug
+
+        problem = get_object_or_404(Problem, slug=slug)
+    
     if request.method == 'POST':
         form = CodeSubmissionForm(request.POST)
         if form.is_valid():
@@ -58,7 +71,9 @@ def submit(request, slug=None):
         "problem": problem,
         "input":problem.example_input,
         "verdicts":verdicts,
-        "submission":submission
+        "submission":submission,
+        "prev_slug": prev_slug,
+        "next_slug": next_slug,
     })
 
 
@@ -135,3 +150,19 @@ def problem_list(request):
 def problem_detail(request, slug):
     problem = get_object_or_404(Problem, slug=slug)
     return render(request, "submit/problem_detail.html", {"problem": problem})
+
+
+def problem_detail(request, slug):
+    problems = list(Problem.objects.order_by('id'))
+    problem = get_object_or_404(Problem, slug=slug)
+    
+    index = problems.index(problem)
+
+    prev_slug = problems[index - 1].slug if index > 0 else None
+    next_slug = problems[index + 1].slug if index < len(problems) - 1 else None
+
+    return render(request, "index.html", {
+        "problem": problem,
+        "prev_slug": prev_slug,
+        "next_slug": next_slug,
+    })
