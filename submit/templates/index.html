@@ -1,298 +1,849 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Submit Code | Online Judge</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if problem %}{{ problem.title }} | {% endif %}Online Judge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f2f2f2;
-    }
+        .header {
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 0 1rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
 
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #343a40;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 30px;
-      z-index: 1000;
-    }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
 
-    header .title {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3b82f6;
+        }
 
-    .container {
-      display: flex;
-      height: calc(100vh - 60px);
-      margin-top: 60px;
-    }
+        .nav-arrows {
+            display: flex;
+            gap: 1rem;
+            margin-left: 1rem;
+        }
 
-    .left-panel {
-      width: 40%;
-      background: #fff;
-      padding: 20px;
-      border-right: 1px solid #ddd;
-      overflow-y: auto;
-    }
+        .nav-arrow {
+            color: #3b82f6;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-    .right-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: auto;
-      padding: 20px;
-      position: relative;
-    }
+        .nav-arrow.disabled {
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
 
-    .language-selector {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+        .nav-arrow:hover:not(.disabled) {
+            color: #2563eb;
+        }
 
-    .language-selector select {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-color: #1e1e1e;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 14px;
-      font-family: monospace;
-      cursor: pointer;
-      outline: none;
-      box-shadow: 0 0 0 1px #444;
-      transition: background-color 0.2s ease;
-    }
+        .user-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
 
-    .language-selector select:hover {
-      background-color: #2a2a2a;
-    }
+        .nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-    .submission-form {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+        .nav-link:hover {
+            color: #3b82f6;
+        }
 
-    #editor {
-      height: 55vh;
-      width: 100%;
-      border: 1px solid #ccc;
-      flex-shrink: 0;
-    }
+        .user-menu {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
 
-    textarea {
-      padding: 10px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      resize: vertical;
-    }
+        .user-menu:hover {
+            color: #3b82f6;
+        }
 
-    button {
-      width: 100px;
-      padding: 10px;
-      background-color: #28a745;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 4px;
-    }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
 
-    .tabs {
-      display: flex;
-      margin-top: 10px;
-    }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
 
-    .tab {
-      padding: 10px 20px;
-      border: 1px solid #ccc;
-      background: #eee;
-      cursor: pointer;
-      margin-right: 5px;
-    }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
 
-    .tab.active {
-      background: #fff;
-      border-bottom: none;
-    }
+        .btn-secondary {
+            background-color: #374151;
+            color: #e5e7eb;
+            border: 1px solid #4b5563;
+        }
 
-    .tab-content {
-      border: 1px solid #ccc;
-      padding: 10px;
-      display: none;
-      background: #fff;
-      height: 150px;
-      overflow-y: auto;
-    }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
 
-    .tab-content.active {
-      display: block;
-    }
-  </style>
+        .btn-ai {
+            background-color: #65a30d;
+            color: white;
+        }
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+        .btn-ai:hover {
+            background-color: #45701a;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+            margin-top: 60px;
+        }
+
+        .problem-panel {
+            width: 50%;
+            background-color: #1e293b;
+            border-right: 1px solid #334155;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .code-panel {
+            width: 50%;
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resize-handle {
+            width: 4px;
+            background-color: #334155;
+            cursor: col-resize;
+            transition: background-color 0.2s;
+        }
+
+        .resize-handle:hover {
+            background-color: #3b82f6;
+        }
+
+        .problem-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .difficulty.easy {
+            background-color: #065f46;
+            color: #6ee7b7;
+        }
+
+        .difficulty.medium {
+            background-color: #eab308;
+            color: #fbbf24;
+        }
+
+        .difficulty.hard {
+            background-color: #dc2626;
+            color: #ef4444;
+        }
+
+        .problem-description {
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .example {
+            background-color: #374151;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .example-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #fbbf24;
+        }
+
+        .constraints {
+            margin-top: 2rem;
+        }
+
+        .constraints h3 {
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+
+        .constraints ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+        }
+
+        .constraints li {
+            margin-bottom: 0.5rem;
+        }
+
+        .editor-header {
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .language-select {
+            background-color: #374151;
+            color: #e5e7eb;
+            border: 1px solid #4b5563;
+            font-size: 0.875rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn-console {
+            background-color: #374151;
+            color: #e5e7eb;
+            border: 1px solid #4b5563;
+            font-size: 0.875rem;
+        }
+
+        .btn-console:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-console.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn-run {
+            background-color: #059669;
+            color: white;
+        }
+
+        .btn-run:hover {
+            background-color: #047857;
+        }
+
+        .btn-submit {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-ai {
+            background-color: #65a30d;
+            color: white;
+        }
+
+        .btn-ai:hover {
+            background-color: #45701a;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            /* Added explicit height calculation for Monaco editor */
+            height: calc(100vh - 60px - 60px - 200px); /* viewport - header - editor-header - console */
+        }
+
+        .editor-container.console-hidden {
+            /* Full height when console is hidden */
+            height: calc(100vh - 60px - 60px); /* viewport - header - editor-header */
+        }
+
+        .code-editor {
+            flex: 1;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            border: none;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            min-height: 0;
+            /* Ensure editor takes full available height */
+            height: 100%;
+        }
+
+        #editor {
+            /* Monaco editor container needs explicit height */
+            height: 100% !important;
+            width: 100% !important;
+        }
+
+        .results-panel {
+            background-color: #1e293b;
+            border-top: 1px solid #334155;
+            height: 200px;
+            /* Changed from overflow-y: auto to flex layout for sticky header */
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .results-panel.hidden {
+            height: 0;
+            overflow: hidden;
+            border-top: none;
+        }
+
+        .results-content {
+            padding: 1rem;
+        }
+
+        .results-tabs {
+            display: flex;
+            border-bottom: 1px solid #334155;
+            background-color: #1e293b;
+            /* Make tabs sticky at top of console */
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            color: #e2e8f0;
+        }
+
+        .tab-button.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        /* Added scrollable container for tab content */
+        .tab-content-container {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .problem-panel,
+            .code-panel {
+                width: 100%;
+            }
+            
+            .problem-panel {
+                height: 40%;
+            }
+            
+            .code-panel {
+                height: 60%;
+            }
+            
+            .resize-handle {
+                display: none;
+            }
+            .constraints-section {
+    background: #1e1e1e; /* Dark background to match editor */
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.constraints-section h3 {
+    margin-top: 0;
+    margin-bottom: 8px; /* space before list */
+    font-size: 1.2em;
+    color: #ffcc00; /* Highlighted heading */
+}
+
+.constraints-list ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-top: 12px; /* extra gap before constraints start */
+}
+
+.constraints-list li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+
+        }
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
 </head>
 <body>
+    <!-- Updated header with Django template variables and navigation -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">Online Judge</div>
+            
+            <div class="nav-arrows">
+                {% if prev_slug %}
+                    <a href="{% url 'problem_detail' prev_slug %}" class="nav-arrow" title="Previous Problem">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                {% else %}
+                    <span class="nav-arrow disabled">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </span>
+                {% endif %}
 
- <header>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <div style="display: flex; align-items: center; gap: 10px;">
-
-    <div class="title">Online Judge</div>
-
-    {% if prev_slug %}
-      <a href="{% url 'problem_detail' prev_slug %}" title="Previous Problem" style="color: white; font-size: 20px;">
-        <i class="fa-solid fa-arrow-left"></i>
-      </a>
-    {% else %}
-      <span style="color: gray; font-size: 20px;">&#8592;</span>
-    {% endif %}
-
-    
-
-    {% if next_slug %}
-      <a href="{% url 'problem_detail' next_slug %}" title="Next Problem" style="color: white; font-size: 20px;">
-        <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    {% else %}
-      <span style="color: gray; font-size: 20px;">&#8594;</span>
-    {% endif %}
-  </div>
-
-  <a href="{% url 'logout' %}" title="Logout" style="color: white; text-decoration: none;">
-    <i class="fa-solid fa-user"></i>
-  </a>
-</header>
-
-
-  <div class="container">
-    <!-- LEFT PANEL -->
-    <div class="left-panel">
-      {% if problem %}
-        <h2>{{ problem.title }}</h2>
-        
-        <p><strong>Difficulty:</strong> {{ problem.difficulty }}</p>
-        <hr>
-        <p>{{ problem.description|linebreaks }}</p>
-      {% else %}
-        <h2>No Problem Selected</h2>
-        <p>Use the editor freely or go to <a href="{% url 'problem_list' %}">Problems List</a>.</p>
-      {% endif %}
-    </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
-      <form method="post" class="submission-form" id="submission-form">
-        {% csrf_token %}
-
-        <div class="language-selector">
-          <select name="language" id="language">
-            <option value="python" {% if submission.language == "python" %}selected{% endif %}>Python</option>
-            <option value="cpp" {% if submission.language == "cpp" %}selected{% endif %}>C++</option>
-            <option value="java" {% if submission.language == "java" %}selected{% endif %}>Java</option>
-          </select>
+                {% if next_slug %}
+                    <a href="{% url 'problem_detail' next_slug %}" class="nav-arrow" title="Next Problem">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                {% else %}
+                    <span class="nav-arrow disabled">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                {% endif %}
+            </div>
         </div>
 
-        <input type="hidden" name="code" id="code-hidden">
-        <div id="editor"></div>
-
-        <div class="tabs">
-          <div class="tab active" onclick="showTab('input')">Input</div>
-          <div class="tab" onclick="showTab('output')">Output</div>
-          <div class="tab" onclick="showTab('verdict')">Verdict</div>
+        <div class="user-section">
+            <a href="{% url 'problem_list' %}" class="nav-link">Problems</a>
+            <a href="{% url 'logout' %}" class="user-menu" title="Logout">
+                <i class="fa-solid fa-user"></i>
+            </a>
         </div>
+    </header>
 
-        <div id="input" class="tab-content active">
-          <textarea name="input_data" id="input_data" placeholder="Custom Input...">{{ input|default_if_none:'' }}</textarea>
-        </div>
+    <div class="main-container">
+        <!-- Updated problem panel with Django template variables -->
+        <div class="problem-panel">
+            {% if problem %}
+                <h1 class="problem-title">{{ problem.title }}</h1>
+                <span class="difficulty {{ problem.difficulty|lower }}">{{ problem.difficulty }}</span>
+                
+                <div class="problem-description">
+                    {{ problem.description|linebreaks }}
+                </div>
+                {% if problem.example_testcases %}
+                <div class="examples-section">
+                    <h3>Examples</h3>
+                    {% for example in problem.example_testcases %}
+                    <div class="example">
+                        <div class="example-title">Example {{ forloop.counter }}:</div>
+                        
+                        <div class="example-input">
+                            <div class="example-label">Input:</div>
+                            <pre>{{ example.input }}</pre>
+                        </div>
+                        
+                        <div class="example-output">
+                            <div class="example-label">Output:</div>
+                            <pre>{{ example.output }}</pre>
+                        </div>
+                        
+                        {% if example.explanation %}
+                        <div class="example-explanation">
+                            <div class="example-label">Explanation:</div>
+                            {{ example.explanation }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if problem.constraints %}
+                <div class="constraints-section">
+                    <h3>Constraints</h3>
+                
+                    <!-- Store raw constraints -->
+                    <div id="constraints-raw" style="display: none;">{{ problem.constraints }}</div>
+                
+                    <div class="constraints-list">
+                        <ul id="constraints-list" style="margin-top: 12px; padding-left: 20px; list-style-type: disc;"></ul>
+                    </div>
+                </div>
+                
+                <style>
+                    #constraints-list li {
+                        margin-bottom: 8px; /* space between constraints */
+                        padding-left: 5px; /* indent text slightly more */
+                    }
+                </style>
+                {% endif %}
+                
 
-        <div id="output" class="tab-content">
-          <pre>{{ output|default:"No output yet." }}</pre>
-        </div>
-        <div id="verdict" class="tab-content">
-            {% if verdicts %}
-              <ul style="list-style:none; padding-left:0;">
-                {% for v in verdicts %}
-                <li style="color:{% if v.passed %}green{% else %}red{% endif %};">
-                    Test case {{ forloop.counter }}: {{ v.message }}
-                  </li>
-                  
-                {% endfor %}
-              </ul>
             {% else %}
-              <p>No verdict yet.</p>
+                <h1 class="problem-title">Practice Mode</h1>
+                <div class="problem-description">
+                    <p>Use the editor freely or go to <a href="{% url 'problem_list' %}" style="color: #3b82f6;">Problems List</a>.</p>
+                </div>
             {% endif %}
         </div>
-        <div style="display: flex; gap: 10px;">
-        <button type="submit" name="action" value="run">Run Code</button>
-        <button type="submit" name="action" value="submit">Submit</button>
-          </div>
-      </form>
+
+        <div class="resize-handle" id="resizeHandle"></div>
+
+        <!-- Updated code panel with Django form and template variables -->
+        <div class="code-panel">
+            <form method="post" id="submission-form">
+                {% csrf_token %}
+                <input type="hidden" name="code" id="code-hidden">
+                
+                <div class="editor-header">
+                    <select class="language-select" name="language" id="languageSelect">
+                        <option value="python" {% if submission.language == "python" %}selected{% endif %}>Python</option>
+                        <option value="cpp" {% if submission.language == "cpp" %}selected{% endif %}>C++</option>
+                        <option value="java" {% if submission.language == "java" %}selected{% endif %}>Java</option>
+                    </select>
+                    <div class="editor-actions">
+                        <button type="button" class="btn btn-console" id="consoleToggle" onclick="toggleConsole()">
+                            <i class="fa-solid fa-terminal"></i> Console
+                        </button>
+                        <button type="submit" name="action" value="run" class="btn btn-run">
+                            <i class="fa-solid fa-play"></i> Run
+                        </button>
+                        <button type="submit" name="action" value="submit" class="btn btn-submit">
+                            <i class="fa-solid fa-paper-plane"></i> Submit
+                        </button>
+                        <button type="submit" name="action" value="ai_review" class="btn btn-ai">
+                            <i class="fa-solid fa-robot"></i> AI Review
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="editor-container">
+                    <div id="editor"></div>
+                </div>
+                
+                <!-- Updated results panel with Django template variables and proper tab structure -->
+                <div class="results-panel {% if output or verdicts or ai_rev %}{% else %}hidden{% endif %}" id="resultsPanel">
+                    <div class="results-tabs">
+                        <button type="button" class="tab-button active" onclick="switchTab('input')">
+                            <i class="fa-solid fa-keyboard"></i> Input
+                        </button>
+                        <button type="button" class="tab-button" onclick="switchTab('output')">
+                            <i class="fa-solid fa-terminal"></i> Output
+                        </button>
+                        <button type="button" class="tab-button" onclick="switchTab('verdict')">
+                            <i class="fa-solid fa-check-circle"></i> Results
+                        </button>
+                        <button type="button" class="tab-button" onclick="switchTab('ai-review')">
+                            <i class="fa-solid fa-robot"></i> AI Review
+                        </button>
+                    </div>
+
+                    <!-- Wrapped tab content in scrollable container -->
+                    <div class="tab-content-container">
+                        <div class="tab-content active" id="input-tab">
+                            <textarea name="input_data" id="input_data" placeholder="Enter your custom input here..." style="width: 100%; height: 120px; background: #1e293b; border: 1px solid #334155; border-radius: 0.375rem; padding: 0.75rem; color: #e2e8f0; font-family: 'Courier New', monospace; resize: vertical;">{{ input|default_if_none:'' }}</textarea>
+                        </div>
+
+                        <div class="tab-content" id="output-tab">
+                            <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word;">{{ output|default:"No output yet. Click 'Run' to execute your code." }}</pre>
+                        </div>
+
+                        <div class="tab-content" id="verdict-tab">
+                            {% if verdicts %}
+                                <div class="verdict-list">
+                                    {% for v in verdicts %}
+                                        <div class="test-case {% if v.passed %}passed{% else %}failed{% endif %}">
+                                            <i class="fa-solid {% if v.passed %}fa-check{% else %}fa-times{% endif %}"></i>
+                                            Test case {{ forloop.counter }}: {{ v.message }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p style="color: #94a3b8;">No test results yet. Submit your solution to see results.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="tab-content" id="ai-review-tab">
+                          {% if ai_rev %}
+                          <pre style="font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word;">
+                          Time Complexity: {{ ai_rev.time_complexity }}
+                          Space Complexity: {{ ai_rev.space_complexity }}
+                          Correctness: {{ ai_rev.correctness }}
+                          Readability Score: {{ ai_rev.readability_score }}
+                          
+                          Improvements:
+                          {% for imp in ai_rev.improvements %}- {{ imp }}
+                          {% endfor %}
+                          
+                          Potential Bugs:
+                          {% for bug in ai_rev.potential_bugs %}- {{ bug }}
+                          {% endfor %}
+                          
+                          
+                          </pre>
+                          {% else %}
+                          <pre>No AI review yet. Click 'AI Review' to get feedback on your code.</pre>
+                          {% endif %}
+                          </div>
+                          
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
+    {{ problem.boilerplate|json_script:"boilerplate-data" }}
+    <script>
+      const boilerplate = JSON.parse(document.getElementById("boilerplate-data").textContent);
 
-  <script>
-  require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-  require(["vs/editor/editor.main"], function () {
-    const languageSelector = document.getElementById("language");
+      const codeTemplates = {
+          python: boilerplate.python || "",
+          cpp:boilerplate.cpp || "" ,
+          java: boilerplate.java || ""
+      };
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(["vs/editor/editor.main"], function () {
+            const languageSelector = document.getElementById("languageSelect");
 
-    // Create Monaco editor
-    window.editor = monaco.editor.create(document.getElementById('editor'), {
-      value: `{% if submission %}{{ submission.code|escapejs }}{% else %}# write your code here...{% endif %}`,
-      language: languageSelector.value || "python",
-      theme: "vs-dark",
-      automaticLayout: true
-    });
+            setTimeout(() => {
+                window.editor = monaco.editor.create(document.getElementById('editor'), {
+                    value: `{% if submission %}{{ submission.code|escapejs }}{% else %}${codeTemplates["python"]}{% endif %}`,
+                    language: languageSelector.value || "python",
+                    theme: "vs-dark",
+                    automaticLayout: true,
+                    fontSize: 14,
+                    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                    lineNumbers: 'on',
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    wordWrap: 'on',
+                    tabSize: 4,
+                    insertSpaces: true
+                });
 
-    // Listen for language change
-    languageSelector.addEventListener("change", function () {
-      monaco.editor.setModelLanguage(window.editor.getModel(), this.value);
-      // Optionally, reset code comment template for selected language
-      if (this.value === "python") {
-        window.editor.setValue("# write your code here...");
-      } else if (this.value === "cpp") {
-        window.editor.setValue("// write your code here...");
-      } else if (this.value === "java") {
-        window.editor.setValue("// write your code here...");
-      }
-    });
-  });
+                setTimeout(() => {
+                    window.editor.layout();
+                }, 100);
+            }, 100);
 
-  // Handle form submit
-  document.getElementById('submission-form').addEventListener('submit', function () {
-    document.getElementById('code-hidden').value = window.editor.getValue();
-  });
+            // Language templates for different programming languages
+            
 
-  function showTab(tabId) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.querySelector('.tab[onclick="showTab(\'' + tabId + '\')"]').classList.add('active');
-    document.getElementById(tabId).classList.add('active');
-  }
-</script>
 
+
+
+    // Parse it in JavaScript
+    
+
+
+            languageSelector.addEventListener("change", function () {
+                const language = this.value;
+                monaco.editor.setModelLanguage(window.editor.getModel(), language);
+                
+                if (codeTemplates[language]) {
+                    window.editor.setValue(codeTemplates[language]);
+                }
+            });
+
+            // Form submission handler
+            document.getElementById('submission-form').addEventListener('submit', function(e) {
+                document.getElementById('code-hidden').value = window.editor.getValue();
+            });
+        });
+
+        // Console and panel management
+        let consoleVisible = {% if output or verdicts or ai_rev %}true{% else %}false{% endif %};
+
+        function toggleConsole() {
+            const resultsPanel = document.getElementById('resultsPanel');
+            const consoleToggle = document.getElementById('consoleToggle');
+            const editorContainer = document.querySelector('.editor-container');
+            
+            consoleVisible = !consoleVisible;
+            
+            if (consoleVisible) {
+                resultsPanel.classList.remove('hidden');
+                consoleToggle.classList.add('active');
+                /* Remove console-hidden class when showing console */
+                editorContainer.classList.remove('console-hidden');
+            } else {
+                resultsPanel.classList.add('hidden');
+                consoleToggle.classList.remove('active');
+                /* Add console-hidden class for full height */
+                editorContainer.classList.add('console-hidden');
+            }
+            
+            /* Force Monaco editor layout update with delay */
+            setTimeout(() => {
+                if (window.editor) {
+                    window.editor.layout();
+                }
+            }, 350);
+        }
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // Resizable panels functionality
+        let isResizing = false;
+        const resizeHandle = document.getElementById('resizeHandle');
+        const problemPanel = document.querySelector('.problem-panel');
+        const codePanel = document.querySelector('.code-panel');
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.addEventListener('mousemove', handleResize);
+            document.addEventListener('mouseup', stopResize);
+        });
+
+        function handleResize(e) {
+            if (!isResizing) return;
+            
+            const containerWidth = document.querySelector('.main-container').offsetWidth;
+            const newLeftWidth = (e.clientX / containerWidth) * 100;
+            
+            if (newLeftWidth > 20 && newLeftWidth < 80) {
+                problemPanel.style.width = newLeftWidth + '%';
+                codePanel.style.width = (100 - newLeftWidth) + '%';
+            }
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', handleResize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                document.querySelector('.btn-run').click();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Enter') {
+                e.preventDefault();
+                document.querySelector('.btn-submit').click();
+            }
+        });
+
+        // Auto-expand console when there are results
+        document.addEventListener('DOMContentLoaded', function() {
+            const hasOutput = document.querySelector('#output-tab pre').textContent.trim() !== "No output yet. Click 'Run' to execute your code.";
+            const hasVerdicts = document.querySelector('#verdict-tab .verdict-list') !== null;
+            const hasAiReview = document.querySelector('#ai-review-tab pre').textContent.trim() !== "No AI review yet. Click 'AI Review' to get feedback on your code.";
+            
+            /* Set initial editor container class based on console visibility */
+            const editorContainer = document.querySelector('.editor-container');
+            if (hasOutput || hasVerdicts || hasAiReview) {
+                if (!consoleVisible) {
+                    toggleConsole();
+                }
+                editorContainer.classList.remove('console-hidden');
+            } else {
+                editorContainer.classList.add('console-hidden');
+            }
+            
+            /* Force layout update after DOM is ready */
+            setTimeout(() => {
+                if (window.editor) {
+                    window.editor.layout();
+                }
+            }, 500);
+        });
+
+        // Render constraints from the hidden raw string
+        const constraintsRaw = document.getElementById("constraints-raw");
+        if (constraintsRaw) {
+            const constraints = constraintsRaw.textContent.split(";").map(c => c.trim()).filter(c => c.length > 0);
+            const constraintsList = document.getElementById("constraints-list");
+
+            constraints.forEach(c => {
+                const li = document.createElement("li");
+                li.textContent = c;
+                constraintsList.appendChild(li);
+            });
+        }
+
+
+    </script>
 </body>
 </html>

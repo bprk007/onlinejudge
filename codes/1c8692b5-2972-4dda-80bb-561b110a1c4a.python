@@ -1,0 +1,5 @@
+def solution():
+    # Write your code here
+    pass
+
+print(solution())

@@ -23,9 +23,10 @@ class Problem(models.Model):
         ]
     )
     description = models.TextField()
-    example_input = models.TextField()
+    example_testcases = models.JSONField()
     test_cases = models.JSONField()
-
+    constraints = models.TextField()
+    boilerplate = models.JSONField()
     def __str__(self):
         return self.title
 

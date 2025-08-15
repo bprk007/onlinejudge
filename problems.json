@@ -1,97 +1,86 @@
 [
   {
-    "title": "Sum of Two Numbers",
-    "slug": "sum-of-two-numbers",
+    "title": "Two Sum",
+    "slug": "two-sum",
     "difficulty": "Easy",
-    "description": "Given two integers, output their sum.",
-    "example_input": "2 3",
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+    "example_testcases": [
+      { "input": "nums = [2,7,11,15], target = 9", "output": "[0,1]" },
+      { "input": "nums = [3,2,4], target = 6", "output": "[1,2]" }
+    ],
     "test_cases": [
-      { "input": "1 1", "expected_output": "2" },
-      { "input": "10 20", "expected_output": "30" },
-      { "input": "-5 5", "expected_output": "0" },
-      { "input": "100 200", "expected_output": "300" },
-      { "input": "-10 -20", "expected_output": "-30" },
-      { "input": "123 456", "expected_output": "579" },
-      { "input": "999 1", "expected_output": "1000" },
-      { "input": "0 0", "expected_output": "0" },
-      { "input": "-50 100", "expected_output": "50" },
-      { "input": "2147483640 5", "expected_output": "2147483645" }
-    ]
+      { "input": "[2,7,11,15] 9", "output": "0 1" },
+      { "input": "[3,2,4] 6", "output": "1 2" },
+      { "input": "[3,3] 6", "output": "0 1" },
+      { "input": "[1,5,3,7] 8", "output": "1 2" },
+      { "input": "[0,4,3,0] 0", "output": "0 3" },
+      { "input": "[1,2,5,6] 7", "output": "1 2" },
+      { "input": "[5,5,10] 10", "output": "0 1" },
+      { "input": "[8,9,2,1] 3", "output": "2 3" },
+      { "input": "[100,200,300,400] 500", "output": "1 2" },
+      { "input": "[1,2,3,4,5] 9", "output": "3 4" }
+    ],
+    "constraints": "2 <= nums.length <= 10^4; -10^9 <= nums[i] <= 10^9; -10^9 <= target <= 10^9; Only one valid answer exists.",
+    "boilerplate": {
+      "python": "def twoSum(nums, target):\n    # Write your code here\n    pass",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nvector<int> twoSum(vector<int>& nums, int target) {\n    // Write your code here\n}",
+      "java": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your code here\n    }\n}"
+    }
   },
   {
-    "title": "Factorial",
-    "slug": "factorial",
+    "title": "Reverse String",
+    "slug": "reverse-string",
     "difficulty": "Easy",
-    "description": "Given an integer n (0 ≤ n ≤ 20), output the factorial of n.",
-    "example_input": "5",
+    "description": "Write a function that reverses a string.",
+    "example_testcases": [
+      { "input": "\"hello\"", "output": "\"olleh\"" },
+      { "input": "\"world\"", "output": "\"dlrow\"" }
+    ],
     "test_cases": [
-      { "input": "0", "expected_output": "1" },
-      { "input": "1", "expected_output": "1" },
-      { "input": "2", "expected_output": "2" },
-      { "input": "3", "expected_output": "6" },
-      { "input": "4", "expected_output": "24" },
-      { "input": "5", "expected_output": "120" },
-      { "input": "6", "expected_output": "720" },
-      { "input": "7", "expected_output": "5040" },
-      { "input": "10", "expected_output": "3628800" },
-      { "input": "20", "expected_output": "2432902008176640000" }
-    ]
-  },
-  {
-    "title": "Palindrome Check",
-    "slug": "palindrome-check",
-    "difficulty": "Medium",
-    "description": "Given a string, output 'YES' if it is a palindrome and 'NO' otherwise. Ignore case and spaces.",
-    "example_input": "racecar",
-    "test_cases": [
-      { "input": "madam", "expected_output": "YES" },
-      { "input": "racecar", "expected_output": "YES" },
-      { "input": "hello", "expected_output": "NO" },
-      { "input": "level", "expected_output": "YES" },
-      { "input": "Was it a car or a cat I saw", "expected_output": "YES" },
-      { "input": "No lemon no melon", "expected_output": "YES" },
-      { "input": "abcba", "expected_output": "YES" },
-      { "input": "abcd", "expected_output": "NO" },
-      { "input": "Able was I ere I saw Elba", "expected_output": "YES" },
-      { "input": "abcde", "expected_output": "NO" }
-    ]
+      { "input": "\"abc\"", "output": "\"cba\"" },
+      { "input": "\"racecar\"", "output": "\"racecar\"" },
+      { "input": "\"12345\"", "output": "\"54321\"" },
+      { "input": "\"!@#\"", "output": "\"#@!\"" },
+      { "input": "\"madam\"", "output": "\"madam\"" },
+      { "input": "\"python\"", "output": "\"nohtyp\"" },
+      { "input": "\"java\"", "output": "\"avaj\"" },
+      { "input": "\"openai\"", "output": "\"ianepo\"" },
+      { "input": "\"reverse\"", "output": "\"esrever\"" },
+      { "input": "\"monaco\"", "output": "\"ocanom\"" }
+    ],
+    "constraints": "1 <= s.length <= 10^5; s consists of printable ASCII characters.",
+    "boilerplate": {
+      "python": "def reverseString(s):\n    # Write your code here\n    pass",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nstring reverseString(string s) {\n    // Write your code here\n}",
+      "java": "class Solution {\n    public String reverseString(String s) {\n        // Write your code here\n    }\n}"
+    }
   },
   {
     "title": "Fibonacci Number",
     "slug": "fibonacci-number",
     "difficulty": "Medium",
-    "description": "Given n (0 ≤ n ≤ 30), output the nth Fibonacci number where F0 = 0 and F1 = 1.",
-    "example_input": "7",
+    "description": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones.",
+    "example_testcases": [
+      { "input": "2", "output": "1" },
+      { "input": "3", "output": "2" }
+    ],
     "test_cases": [
-      { "input": "0", "expected_output": "0" },
-      { "input": "1", "expected_output": "1" },
-      { "input": "2", "expected_output": "1" },
-      { "input": "3", "expected_output": "2" },
-      { "input": "4", "expected_output": "3" },
-      { "input": "5", "expected_output": "5" },
-      { "input": "6", "expected_output": "8" },
-      { "input": "7", "expected_output": "13" },
-      { "input": "10", "expected_output": "55" },
-      { "input": "20", "expected_output": "6765" }
-    ]
-  },
-  {
-    "title": "Prime Number Check",
-    "slug": "prime-number-check",
-    "difficulty": "Hard",
-    "description": "Given an integer n (1 ≤ n ≤ 10^6), output 'YES' if n is prime, otherwise 'NO'.",
-    "example_input": "17",
-    "test_cases": [
-      { "input": "2", "expected_output": "YES" },
-      { "input": "3", "expected_output": "YES" },
-      { "input": "4", "expected_output": "NO" },
-      { "input": "5", "expected_output": "YES" },
-      { "input": "10", "expected_output": "NO" },
-      { "input": "13", "expected_output": "YES" },
-      { "input": "17", "expected_output": "YES" },
-      { "input": "19", "expected_output": "YES" },
-      { "input": "20", "expected_output": "NO" },
-      { "input": "999983", "expected_output": "YES" }
-    ]
+      { "input": "0", "output": "0" },
+      { "input": "1", "output": "1" },
+      { "input": "2", "output": "1" },
+      { "input": "3", "output": "2" },
+      { "input": "4", "output": "3" },
+      { "input": "5", "output": "5" },
+      { "input": "6", "output": "8" },
+      { "input": "7", "output": "13" },
+      { "input": "10", "output": "55" },
+      { "input": "15", "output": "610" }
+    ],
+    "constraints": "0 <= n <= 30",
+    "boilerplate": {
+      "python": "def fib(n):\n    # Write your code here\n    pass",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint fib(int n) {\n    // Write your code here\n}",
+      "java": "class Solution {\n    public int fib(int n) {\n        // Write your code here\n    }\n}"
+    }
   }
 ]

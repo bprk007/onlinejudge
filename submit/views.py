@@ -8,6 +8,7 @@ import os
 import uuid
 import subprocess
 from pathlib import Path
+from google import genai
 
 @login_required
 def submit(request, slug=None):
@@ -18,6 +19,7 @@ def submit(request, slug=None):
     submission = None
     prev_slug = None
     next_slug = None
+    ai_rev = None
 
     if slug:
         problems = list(Problem.objects.order_by("id"))
@@ -37,7 +39,7 @@ def submit(request, slug=None):
             submission = form.save()
         if action == "run":
             
-                submission.input_data = problem.example_input
+                submission.input_data = problem.example_testcases[0].get("input","")
                 output = run_code(
                     submission.language,
                     submission.code,
@@ -60,6 +62,20 @@ def submit(request, slug=None):
                     "passed" : passed,
                     "message": f"Test case {idx} {'passed' if passed else 'failed'}"
                 })
+        
+        elif action == "ai_review":
+            ai_rev = ai_review(problem.description, submission.code)
+            return render(request, "index.html", {
+            "form": form,
+            "output": output,
+            "problem": problem,
+            "input":problem.example_testcases[0].get("input",""),
+            "verdicts":verdicts,
+            "submission":submission,
+            "prev_slug": prev_slug,
+            "next_slug": next_slug,
+            "ai_rev": ai_rev,
+            })
 
 
     else:
@@ -69,18 +85,24 @@ def submit(request, slug=None):
         "form": form,
         "output": output,
         "problem": problem,
-        "input":problem.example_input,
+        "input":problem.example_testcases[0].get("input",""),
         "verdicts":verdicts,
         "submission":submission,
         "prev_slug": prev_slug,
         "next_slug": next_slug,
+        
     })
 
 
-def run_code(language,code,input_data):
+import subprocess
+import uuid
+from pathlib import Path
+from django.conf import settings
+
+def run_code(language, code, input_data, time_limit=2):
     print("running")
     project_path = Path(settings.BASE_DIR)
-    directories = ["codes", "inputs",   "outputs"]
+    directories = ["codes", "inputs", "outputs"]
 
     for directory in directories:
         dir_path = project_path / directory
@@ -107,33 +129,42 @@ def run_code(language,code,input_data):
     with open(input_file_path, "w") as input_file:
         input_file.write(input_data)
 
-    with open(output_file_path, "w") as output_file:
-        pass  # This will create an empty file
+    # Create empty output file
+    open(output_file_path, "w").close()
 
-    if language == "cpp":
-        executable_path = codes_dir / unique
-        compile_result = subprocess.run(
-            ["clang++", str(code_file_path), "-o", str(executable_path)]
-        )
-        if compile_result.returncode == 0:
-            with open(input_file_path, "r") as input_file:
-                with open(output_file_path, "w") as output_file:
-                    subprocess.run(
-                        [str(executable_path)],
-                        stdin=input_file,
-                        stdout=output_file,
-                    )
-    elif language == "py" or "python":
-        # Code for executing Python script
-        with open(input_file_path, "r") as input_file:
-            with open(output_file_path, "w") as output_file:
+    try:
+        if language == "cpp":
+            executable_path = codes_dir / unique
+            compile_result = subprocess.run(
+                ["clang++", str(code_file_path), "-o", str(executable_path)],
+                capture_output=True
+            )
+            if compile_result.returncode != 0:
+                return "Compilation Error:\n" + compile_result.stderr.decode()
+
+            with open(input_file_path, "r") as input_file, \
+                 open(output_file_path, "w") as output_file:
+                subprocess.run(
+                    [str(executable_path)],
+                    stdin=input_file,
+                    stdout=output_file,
+                    timeout=time_limit
+                )
+
+        elif language in ("py", "python"):
+            with open(input_file_path, "r") as input_file, \
+                 open(output_file_path, "w") as output_file:
                 subprocess.run(
                     ["python3", str(code_file_path)],
                     stdin=input_file,
                     stdout=output_file,
+                    timeout=time_limit
                 )
 
-    # Read the output from the output file
+    except subprocess.TimeoutExpired:
+        return "Time Limit Exceeded"
+
+    # Read output
     with open(output_file_path, "r") as output_file:
         output_data = output_file.read()
 
@@ -166,3 +197,45 @@ def problem_detail(request, slug):
         "prev_slug": prev_slug,
         "next_slug": next_slug,
     })
+
+
+import json
+from google import genai
+
+def ai_review(question, code):
+    client = genai.Client(api_key="AIzaSyBw8LbvPXDEWWRCi4Z7UcTtqkx8I-5KVjg")
+
+    prompt = f"""
+    You are a code review assistant.
+    Analyze the following code for the given question and return ONLY a valid JSON object with these fields:
+
+    - time_complexity: string (worst-case Big-O notation)
+    - space_complexity: string (worst-case Big-O notation)
+    - correctness: string ("Correct", "Incorrect", or "Partially Correct") with short explanation
+    - improvements: list of strings (each describing a code improvement)
+    - potential_bugs: list of strings (possible bugs or pitfalls)
+    - readability_score: integer from 1 to 10
+    
+
+    Question:
+    {question}
+
+    Code:
+    {code}
+
+    Output ONLY the JSON. No extra text.
+    """
+
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+        config={
+            "response_mime_type": "application/json"
+        }
+    )
+
+    # Parse the returned JSON into a Python dictionary
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError:
+        return {"error": "Invalid JSON returned, contact admin", "raw_output": response.text}

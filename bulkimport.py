@@ -1,7 +1,11 @@
 import json
 from submit.models import Problem
 
-with open("problems.json", "r") as f:
+# Optional: delete all problems before import
+Problem.objects.all().delete()
+print("Deleted all existing problems.")
+
+with open("problems.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 for item in data:
@@ -11,8 +15,10 @@ for item in data:
             "title": item["title"],
             "difficulty": item["difficulty"],
             "description": item["description"],
-            "example_input": item["example_input"],
-            "test_cases": item["test_cases"]
+            "example_testcases": item["example_testcases"],
+            "test_cases": item["test_cases"],
+            "constraints": item["constraints"],
+            "boilerplate": item["boilerplate"],
         }
     )
     print(f"{'Created' if created else 'Skipped'}: {problem.title}")
