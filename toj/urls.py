@@ -25,7 +25,7 @@ urlpatterns = [
     path('', lambda request: redirect('login')),
     path('admin/', admin.site.urls),
     path('auth/login/', login_user,name='login'),
-
+    path('auth/register',register_user,name='register'),
     # Your logout path (optional)
     #path('auth/logout/', auth_views.LogoutView.as_view(), name='logout'),
 
@@ -33,5 +33,6 @@ urlpatterns = [
     path("submit/", include("submit.urls")),
     path("problems/", views.problem_list, name="problem_list"),
     path("problems/<slug:slug>/", views.submit, name="submit_with_problem"),
-    path("problems/<slug:slug>/", views.problem_detail, name="problem_detail")
+    path("problems/<slug:slug>/", views.problem_detail, name="problem_detail"),
+    path("home/",include('home.urls'))
 ]

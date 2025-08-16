@@ -44,7 +44,7 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #3b82f6;
+            color: #f1f5f9; /* Changed from orange to light gray */
         }
 
         .nav-arrows {
@@ -54,7 +54,7 @@
         }
 
         .nav-arrow {
-            color: #3b82f6;
+            color: #cbd5e1; /* Changed from orange to light gray */
             text-decoration: none;
             transition: color 0.2s;
         }
@@ -65,7 +65,7 @@
         }
 
         .nav-arrow:hover:not(.disabled) {
-            color: #2563eb;
+            color: #f1f5f9; /* Changed from orange to lighter gray on hover */
         }
 
         .user-section {
@@ -81,7 +81,7 @@
         }
 
         .nav-link:hover {
-            color: #3b82f6;
+            color: #f1f5f9; /* Changed from orange to light gray */
         }
 
         .user-menu {
@@ -91,7 +91,7 @@
         }
 
         .user-menu:hover {
-            color: #3b82f6;
+            color: #f1f5f9; /* Changed from orange to light gray */
         }
 
         .btn {
@@ -104,12 +104,12 @@
         }
 
         .btn-primary {
-            background-color: #3b82f6;
+            background-color: #374151; /* Changed from orange to dark gray */
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #2563eb;
+            background-color: #4b5563; /* Changed from darker orange to lighter gray */
         }
 
         .btn-secondary {
@@ -160,7 +160,7 @@
         }
 
         .resize-handle:hover {
-            background-color: #3b82f6;
+            background-color: #64748b; /* Changed from orange to medium gray */
         }
 
         .problem-title {
@@ -210,7 +210,7 @@
         .example-title {
             font-weight: bold;
             margin-bottom: 0.5rem;
-            color: #fbbf24;
+            color: #f1f5f9; /* Changed from orange to light gray */
         }
 
         .constraints {
@@ -267,9 +267,9 @@
         }
 
         .btn-console.active {
-            background-color: #3b82f6;
+            background-color: #4b5563; /* Changed from orange to dark gray */
             color: white;
-            border-color: #3b82f6;
+            border-color: #4b5563; /* Changed from orange to dark gray */
         }
 
         .btn-run {
@@ -382,8 +382,8 @@
         }
 
         .tab-button.active {
-            color: #3b82f6;
-            border-bottom-color: #3b82f6;
+            color: #f1f5f9; /* Changed from orange to light gray */
+            border-bottom-color: #f1f5f9; /* Changed from orange to light gray */
         }
 
         /* Added scrollable container for tab content */
@@ -436,7 +436,7 @@
     margin-top: 0;
     margin-bottom: 8px; /* space before list */
     font-size: 1.2em;
-    color: #ffcc00; /* Highlighted heading */
+    color: #f1f5f9; /* Changed from orange to light gray */
 }
 
 .constraints-list ul {
@@ -514,7 +514,7 @@
                         <div class="example-input">
                             <div class="example-label">Input:</div>
                             <pre>{{ example.input }}</pre>
-                        </div>
+                        </div> 
                         
                         <div class="example-output">
                             <div class="example-label">Output:</div>
@@ -535,7 +535,6 @@
                 <div class="constraints-section">
                     <h3>Constraints</h3>
                 
-                    <!-- Store raw constraints -->
                     <div id="constraints-raw" style="display: none;">{{ problem.constraints }}</div>
                 
                     <div class="constraints-list">
@@ -545,17 +544,16 @@
                 
                 <style>
                     #constraints-list li {
-                        margin-bottom: 8px; /* space between constraints */
-                        padding-left: 5px; /* indent text slightly more */
+                        margin-bottom: 8px;
+                        padding-left: 5px;
                     }
                 </style>
                 {% endif %}
-                
 
             {% else %}
                 <h1 class="problem-title">Practice Mode</h1>
                 <div class="problem-description">
-                    <p>Use the editor freely or go to <a href="{% url 'problem_list' %}" style="color: #3b82f6;">Problems List</a>.</p>
+                    <p>Use the editor freely or go to <a href="{% url 'problem_list' %}" style="color: #f1f5f9;">Problems List</a>.</p>
                 </div>
             {% endif %}
         </div>

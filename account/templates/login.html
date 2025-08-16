@@ -3,39 +3,191 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <title>Login - Online Judge</title>
+    <!-- Replaced Bootstrap with custom styling using orange/black theme -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #e5e5e5;
+      }
+
+      .login-container {
+        background: rgba(26, 26, 26, 0.95);
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .logo h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #ff6b35;
+        margin-bottom: 0.5rem;
+      }
+
+      .login-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
+      }
+
+      .divider {
+        height: 1px;
+        background: #333;
+        margin-bottom: 1.5rem;
+      }
+
+      .alert {
+        background: rgba(255, 107, 53, 0.1);
+        border: 1px solid rgba(255, 107, 53, 0.3);
+        color: #ff6b35;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #b0b0b0;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        background: #2a2a2a;
+        border: 1px solid #404040;
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+      }
+
+      .form-control::placeholder {
+        color: #666;
+      }
+
+      .form-check {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.25rem;
+      }
+
+      .form-check-input {
+        margin-right: 0.5rem;
+        accent-color: #ff6b35;
+      }
+
+      .form-check-label {
+        color: #b0b0b0;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .register-link {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: #b0b0b0;
+      }
+
+      .register-link a {
+        color: #ff6b35;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      .register-link a:hover {
+        color: #ff8c5a;
+      }
+
+      .btn-submit {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+        border: none;
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-submit:hover {
+        background: linear-gradient(135deg, #ff8c5a 0%, #ff6b35 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+      }
+
+      .btn-submit:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          margin: 1rem;
+          padding: 2rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="container mt-5">
-      <!-- Login form -->
-      <form
-        class="col-6 mx-auto card p-3 shadow-lg"
-        method="post"
-        enctype="multipart/form-data"
-      >
-        <h1 style="text-align: center">
-          <span style="color: rgb(16, 96, 121)">Online Judge</span>
-        </h1>
+    <div class="login-container">
+      <!-- Updated logo section with orange color -->
+      <div class="logo">
+        <h1>Online Judge</h1>
+      </div>
 
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <!-- CSRF token for security -->
 
-        <!-- Login heading -->
-        <h3>Login</h3>
-        <hr />
+        <!-- Updated heading and divider styling -->
+        <h3 class="login-title">Login</h3>
+        <div class="divider"></div>
 
-        <!-- Display error/success messages -->
+        <!-- Updated alert styling with orange theme -->
         {% if messages %}
-        <div class="alert alert-primary" role="alert">
+        <div class="alert" role="alert">
           {% for message in messages %} {{ message }} {% endfor %}
         </div>
         {% endif %}
 
-        <!-- Username input field -->
+        <!-- Updated form styling with dark theme -->
         <div class="form-group">
           <label for="exampleInputEmail1">Username</label>
           <input
@@ -43,13 +195,11 @@
             class="form-control"
             name="username"
             id="exampleInputEmail1"
-            aria-describedby="emailHelp"
             placeholder="Enter username"
             required
           />
         </div>
 
-        <!-- Password input field -->
         <div class="form-group">
           <label for="exampleInputPassword1">Password</label>
           <input
@@ -62,8 +212,7 @@
           />
         </div>
 
-        <!-- Show password toggle -->
-        <div class="form-group form-check">
+        <div class="form-check">
           <input
             type="checkbox"
             class="form-check-input"
@@ -73,11 +222,13 @@
           <label class="form-check-label" for="showPassword">Show Password</label>
         </div>
 
-        <!-- Link to registration page -->
-        <p>Don't have an account? <a href="/auth/register/">Register</a></p>
+        <!-- Updated register link with orange accent -->
+        <div class="register-link">
+          <p>Don't have an account? <a href="/auth/register/">Register</a></p>
+        </div>
 
-        <!-- Submit button -->
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <!-- Updated submit button with orange gradient -->
+        <button type="submit" class="btn-submit">Submit</button>
       </form>
     </div>
 

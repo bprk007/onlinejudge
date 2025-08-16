@@ -36,62 +36,75 @@ def submit(request, slug=None):
     if request.method == 'POST':
         form = CodeSubmissionForm(request.POST)
         if form.is_valid():
-            submission = form.save()
+            submission = form.save(commit=False)
+
         if action == "run":
+            # Example test case only
+            #submission.input_data = problem.example_testcases[0].get("input", "")
             
-                submission.input_data = problem.example_testcases[0].get("input","")
-                output = run_code(
-                    submission.language,
-                    submission.code,
-                    submission.input_data
-                )
-                submission.output_data = output
-                submission.save()
+            output = run_code(
+                submission.language,
+                submission.code,
+                submission.input_data
+            )
+            print(output)
+            print(submission.input_data)
+            submission.output_data = output 
+            print(output)  # ✅ save only here
+            submission.save()
 
         elif action == "submit":
+            # Hidden test cases
             test_cases = problem.test_cases
-            
-            for idx,tc in enumerate(test_cases,start=1):
+            for idx, tc in enumerate(test_cases, start=1):
                 output = run_code(
                     submission.language,
                     submission.code,
                     tc["input"]
                 )
-                passed = (output.strip() == tc["expected_output"].strip())
+                passed = (output.strip() == tc["output"].strip())
                 verdicts.append({
-                    "passed" : passed,
-                    "message": f"Test case {idx} {'passed' if passed else 'failed'}"
-                })
-        
+                        "passed": passed,
+                        "message": f"Test case {idx} {'passed' if passed else 'failed'}"})
+                
+                if not passed:
+                    verdicts.append({
+                        "passed": passed,
+                        "message": f"Test case {idx} {'passed' if passed else 'failed'}"
+                    })
+                    break
+            submission.save()  # ✅ don’t touch output_data
+
         elif action == "ai_review":
             ai_rev = ai_review(problem.description, submission.code)
+            submission.save()
             return render(request, "index.html", {
-            "form": form,
-            "output": output,
-            "problem": problem,
-            "input":problem.example_testcases[0].get("input",""),
-            "verdicts":verdicts,
-            "submission":submission,
-            "prev_slug": prev_slug,
-            "next_slug": next_slug,
-            "ai_rev": ai_rev,
+                "form": form,
+                "output": submission.output_data,  # ✅ always read from saved
+                "problem": problem,
+                "input": problem.example_testcases[0].get("input", ""),
+                "verdicts": verdicts,
+                "submission": submission,
+                "prev_slug": prev_slug,
+                "next_slug": next_slug,
+                "ai_rev": ai_rev,
             })
-
 
     else:
         form = CodeSubmissionForm()
 
     return render(request, "index.html", {
         "form": form,
-        "output": output,
+        "output": submission.output_data if submission else None,  # ✅ persists run output
         "problem": problem,
-        "input":problem.example_testcases[0].get("input",""),
-        "verdicts":verdicts,
-        "submission":submission,
+        "input": submission.input_data if submission else problem.example_testcases[0].get("input", ""),
+        "verdicts": verdicts,
+        "submission": submission,
         "prev_slug": prev_slug,
         "next_slug": next_slug,
-        
     })
+
+
 
 
 import subprocess
@@ -101,6 +114,7 @@ from django.conf import settings
 
 def run_code(language, code, input_data, time_limit=2):
     print("running")
+    print(input_data)
     project_path = Path(settings.BASE_DIR)
     directories = ["codes", "inputs", "outputs"]
 
@@ -167,7 +181,7 @@ def run_code(language, code, input_data, time_limit=2):
     # Read output
     with open(output_file_path, "r") as output_file:
         output_data = output_file.read()
-
+    print(output_data)
     return output_data
 
 

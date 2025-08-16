@@ -1,0 +1,6 @@
+s = input()
+def reverseString(s):
+    # Write your code here
+    return s[::-1]
+
+print(reverseString(s))

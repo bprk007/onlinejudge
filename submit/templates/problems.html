@@ -6,102 +6,215 @@
   <title>Problems | Online Judge</title>
   <link rel="stylesheet" href="{% static 'judge/css/style.css' %}" />
   <style>
+    /* Applied dark theme with orange accents */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
-      padding: 80px 20px 20px 20px; /* Top padding to avoid fixed header overlap */
-      background-color: #f9f9f9;
+      padding: 80px 20px 20px 20px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: #e5e5e5;
+      min-height: 100vh;
     }
 
     h1 {
       text-align: center;
+      margin-bottom: 40px;
+      color: #ffffff;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    /* Added search and filter functionality */
+    .controls {
+      display: flex;
+      gap: 20px;
       margin-bottom: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      padding: 12px 16px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #e5e5e5;
+      font-size: 16px;
+      min-width: 300px;
+      transition: border-color 0.3s ease;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #ff6b35;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      padding: 12px 20px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #e5e5e5;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .filter-btn:hover {
+      border-color: #ff6b35;
+      background: #2a2a2a;
+    }
+
+    .filter-btn.active {
+      background: #ff6b35;
+      border-color: #ff6b35;
+      color: #000;
     }
 
     .problems-table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     .problems-table th,
     .problems-table td {
-      padding: 15px;
+      padding: 20px;
       text-align: left;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid #333;
     }
 
     .problems-table th {
-      background-color: #f2f2f2;
+      background: #2a2a2a;
       font-weight: 600;
+      color: #ffffff;
+      font-size: 16px;
     }
 
     .problems-table tr:hover {
-      background-color: #f5f5f5;
+      background: #2a2a2a;
+      transition: background-color 0.2s ease;
     }
 
     .problem-title a {
       text-decoration: none;
-      color: #007bff;
+      color: #ff6b35;
+      font-weight: 500;
+      transition: color 0.3s ease;
     }
 
     .problem-title a:hover {
+      color: #ff8c5a;
       text-decoration: underline;
     }
 
     .difficulty {
       font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      text-align: center;
+      min-width: 80px;
     }
 
     .difficulty.Easy {
-      color: green;
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      border: 1px solid #22c55e;
     }
 
     .difficulty.Medium {
-      color: orange;
+      background: rgba(251, 146, 60, 0.2);
+      color: #fb923c;
+      border: 1px solid #fb923c;
     }
 
     .difficulty.Hard {
-      color: red;
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
     }
 
     .status {
       font-size: 14px;
-      color: #555;
+      color: #9ca3af;
     }
 
+    /* Updated header with dark theme */
     header {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       height: 60px;
-      background-color: #435e79;
+      background: linear-gradient(90deg, #1a1a1a 0%, #2a2a2a 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 30px;
       z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid #333;
     }
 
     header .title {
       font-size: 1.5rem;
       font-weight: bold;
+      color: #ff6b35;
     }
 
     header a {
-      color: white;
+      color: #e5e5e5;
       text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    header a:hover {
+      color: #ff6b35;
+    }
+
+    /* Added responsive design */
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .search-box {
+        min-width: 250px;
+      }
+      
+      .problems-table th,
+      .problems-table td {
+        padding: 15px 10px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .no-problems {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 18px;
+      padding: 40px;
     }
   </style>
 </head>
 <body>
   <header>
     <div class="title">Online Judge</div>
-    <a href="% url 'logout' %" title="Logout">
+    <a href="{% url 'logout' %}" title="Logout">
       <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" viewBox="0 0 16 16">
         <path d="M8 14s5-3 5-7-2.5-6-5-6-5 2.5-5 6 5 7 5 7z"/>
         <path d="M8 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
@@ -110,7 +223,19 @@
   </header>
 
   <h1>Problems</h1>
-  <table class="problems-table">
+  
+  <!-- Added search and filter controls -->
+  <div class="controls">
+    <input type="text" class="search-box" placeholder="Search problems..." id="searchInput">
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-difficulty="all">All</button>
+      <button class="filter-btn" data-difficulty="Easy">Easy</button>
+      <button class="filter-btn" data-difficulty="Medium">Medium</button>
+      <button class="filter-btn" data-difficulty="Hard">Hard</button>
+    </div>
+  </div>
+
+  <table class="problems-table" id="problemsTable">
     <thead>
       <tr>
         <th>ID</th>
@@ -120,19 +245,65 @@
     </thead>
     <tbody>
       {% for problem in problems %}
-        <tr>
+        <tr data-difficulty="{{ problem.difficulty }}">
           <td>{{ problem.id }}</td>
           <td class="problem-title">
             <a href="{% url 'submit_with_problem' problem.slug %}">{{ problem.title }}</a>
           </td>
-          <td class="difficulty {{ problem.difficulty }}">{{ problem.difficulty }}</td>
+          <td><span class="difficulty {{ problem.difficulty }}">{{ problem.difficulty }}</span></td>
         </tr>
       {% empty %}
         <tr>
-          <td colspan="3" style="text-align:center;">No problems available yet.</td>
+          <td colspan="3" class="no-problems">No problems available yet.</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+
+  <!-- Added JavaScript for search and filter functionality -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('searchInput');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const problemRows = document.querySelectorAll('#problemsTable tbody tr[data-difficulty]');
+      
+      let currentFilter = 'all';
+      
+      // Search functionality
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        filterProblems(searchTerm, currentFilter);
+      });
+      
+      // Filter functionality
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Update active button
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          
+          currentFilter = this.dataset.difficulty;
+          const searchTerm = searchInput.value.toLowerCase();
+          filterProblems(searchTerm, currentFilter);
+        });
+      });
+      
+      function filterProblems(searchTerm, difficulty) {
+        problemRows.forEach(row => {
+          const title = row.querySelector('.problem-title a').textContent.toLowerCase();
+          const rowDifficulty = row.dataset.difficulty;
+          
+          const matchesSearch = title.includes(searchTerm);
+          const matchesDifficulty = difficulty === 'all' || rowDifficulty === difficulty;
+          
+          if (matchesSearch && matchesDifficulty) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

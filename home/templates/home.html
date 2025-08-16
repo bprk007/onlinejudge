@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Judge - Master Your Programming Skills</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: oklch(0.12 0 0);
+            --foreground: oklch(0.98 0 0);
+            --card: oklch(0.16 0 0);
+            --card-foreground: oklch(0.98 0 0);
+            --primary: oklch(0.55 0.22 25);
+            --primary-foreground: oklch(0.98 0 0);
+            --secondary: oklch(0.27 0 0);
+            --accent: oklch(0.65 0.18 70);
+            --accent-foreground: oklch(0.12 0 0);
+            --border: oklch(0.27 0 0);
+            --muted: oklch(0.29 0 0);
+            --muted-foreground: oklch(0.7 0 0);
+        }
+        
+        .font-space-grotesk { font-family: 'Space Grotesk', sans-serif; }
+        .font-dm-sans { font-family: 'DM Sans', sans-serif; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #dc2626, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(220, 38, 38, 0.1);
+        }
+        
+        .stats-counter {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .bg-gradient-hero {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(245, 158, 11, 0.1));
+        }
+    </style>
+</head>
+<body style="background-color: var(--background); color: var(--foreground);" class="font-dm-sans">
+    <!-- Navigation -->
+    <nav class="border-b" style="border-color: var(--border); background-color: var(--background);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="font-space-grotesk font-bold text-xl gradient-text">
+                        Online Judge
+                    </div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="{% url 'problem_list' %}" class="hover:opacity-80 transition-opacity">Problems</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="px-4 py-2 rounded-lg border transition-colors" style="border-color: var(--border); background-color: var(--secondary);">
+                        <a href="{% url 'login' %}" class="hover:opacity-80 transition-opacity">Sign In</a>
+                    </button>
+                    <button class="px-4 py-2 rounded-lg text-white transition-colors" style="background-color: var(--primary);">
+                        <a href="{% url 'register' %}" class="hover:opacity-80 transition-opacity">Get Started</a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-20 bg-gradient-hero">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="font-space-grotesk font-bold text-5xl md:text-7xl mb-6">
+                Master Your
+                <span class="gradient-text">Programming</span>
+                Skills
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto" style="color: var(--muted-foreground);">
+                Solve challenging problems, compete in contests, and track your progress on the ultimate coding platform
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:scale-105" style="background-color: var(--primary); color: var(--primary-foreground);">
+                    Start Coding Now
+                </button>
+                <button class="px-8 py-4 rounded-lg font-semibold text-lg border transition-all hover:scale-105" style="border-color: var(--border); background-color: var(--secondary);">
+                    <a href="{% url 'problem_list' %}" class="hover:opacity-80 transition-opacity">View Problems</a>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-space-grotesk font-bold text-4xl md:text-5xl mb-4">
+                    Everything You Need to
+                    <span class="gradient-text">Excel</span>
+                </h2>
+                <p class="text-xl max-w-2xl mx-auto" style="color: var(--muted-foreground);">
+                    Comprehensive tools and features designed to accelerate your programming journey
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-8 rounded-xl card-hover" style="background-color: var(--card); border: 1px solid var(--border);">
+                    <div class="w-12 h-12 rounded-lg mb-6 flex items-center justify-center" style="background-color: var(--primary);">
+                        <svg class="w-6 h-6" style="color: var(--primary-foreground);" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-space-grotesk font-semibold text-xl mb-3">Problem Solving</h3>
+                    <p style="color: var(--muted-foreground);">
+                        Thousands of carefully curated problems from easy to expert level, covering all major algorithms and data structures.
+                    </p>
+                </div>
+
+                <div class="p-8 rounded-xl card-hover" style="background-color: var(--card); border: 1px solid var(--border);">
+                    <div class="w-12 h-12 rounded-lg mb-6 flex items-center justify-center" style="background-color: var(--accent);">
+                        <svg class="w-6 h-6" style="color: var(--accent-foreground);" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-space-grotesk font-semibold text-xl mb-3">Multi-Language</h3>
+                    <p style="color: var(--muted-foreground);">
+                        Support for 15+ programming languages with real-time code execution and detailed feedback.
+                    </p>
+                </div>
+
+                <div class="p-8 rounded-xl card-hover" style="background-color: var(--card); border: 1px solid var(--border);">
+                    <div class="w-12 h-12 rounded-lg mb-6 flex items-center justify-center" style="background-color: var(--primary);">
+                        <svg class="w-6 h-6" style="color: var(--primary-foreground);" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-space-grotesk font-semibold text-xl mb-3">AI Review</h3>
+                    <p style="color: var(--muted-foreground);">
+                        Get intelligent code reviews and optimization suggestions powered by advanced AI technology.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-hero">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="font-space-grotesk font-bold text-4xl md:text-5xl mb-6">
+                Ready to Level Up Your
+                <span class="gradient-text">Coding Skills?</span>
+            </h2>
+            <p class="text-xl mb-8" style="color: var(--muted-foreground);">
+                Join thousands of developers who are already improving their programming skills with Online Judge
+            </p>
+            <button class="px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:scale-105" style="background-color: var(--primary); color: var(--primary-foreground);">
+                Start Your Journey Today
+            </button>
+        </div>
+    </section>
+</body>
+</html>
