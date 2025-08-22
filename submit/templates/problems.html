@@ -209,14 +209,124 @@
       font-size: 18px;
       padding: 40px;
     }
+
+    /* Added user avatar dropdown styles */
+    .user-avatar {
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #4a5568;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .avatar-button:hover {
+      background: #ff6b35;
+      transform: scale(1.05);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      min-width: 150px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 12px 16px;
+      color: #e5e5e5;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown-menu a:hover {
+      background: #3a3a3a;
+      color: #ff6b35;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .auth-buttons a {
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .sign-in-btn {
+      color: #e5e5e5;
+      border: 1px solid #444;
+    }
+
+    .sign-in-btn:hover {
+      border-color: #ff6b35;
+      color: #ff6b35;
+    }
+
+    .get-started-btn {
+      background: #ff6b35;
+      color: #000;
+    }
+
+    .get-started-btn:hover {
+      background: #ff8c5a;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="title">Online Judge</div>
-    <a href="{% url 'logout' %}" class="user-menu" title="Logout">
-                <i class="fa-solid fa-user"></i>
-            </a>
+    
+    <!-- Added conditional navigation based on user authentication -->
+    {% if user.is_authenticated %}
+      <div class="user-avatar">
+        <button class="avatar-button" onclick="toggleDropdown()">
+          {{ user.first_name|first|upper|default:user.username|first|upper }}
+        </button>
+        <div class="dropdown-menu" id="userDropdown">
+          <a href="{% url 'logout' %}">Logout</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="auth-buttons">
+        <a href="{% url 'login' %}" class="sign-in-btn">Sign In</a>
+        <a href="{% url 'register' %}" class="get-started-btn">Get Started</a>
+      </div>
+    {% endif %}
   </header>
 
   <h1>Problems</h1>
@@ -299,6 +409,21 @@
             row.style.display = 'none';
           }
         });
+      }
+    });
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const userAvatar = document.querySelector('.user-avatar');
+      const dropdown = document.getElementById('userDropdown');
+      
+      if (userAvatar && !userAvatar.contains(event.target)) {
+        dropdown.classList.remove('show');
       }
     });
   </script>

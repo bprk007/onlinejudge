@@ -9,6 +9,14 @@ import uuid
 import subprocess
 from pathlib import Path
 from google import genai
+from dotenv import load_dotenv
+import resource
+import signal
+
+load_dotenv()  # loads .env into environment
+api_key = os.getenv("GOOGLE_API_KEY")
+
+
 
 @login_required
 def submit(request, slug=None):
@@ -105,14 +113,17 @@ def submit(request, slug=None):
     })
 
 
+def set_memory_limit(memory_limit_mb=512):
+    """Set memory limit before running user code"""
+    try:
+        mem_bytes = memory_limit_mb * 1024 * 1024
+        resource.setrlimit(resource.RLIMIT_AS, (mem_bytes, mem_bytes))
 
+    except Exception as e:
+        
+       print("")
 
-import subprocess
-import uuid
-from pathlib import Path
-from django.conf import settings
-
-def run_code(language, code, input_data, time_limit=2):
+def run_code(language, code, input_data, time_limit=2, memory_limit=128):
     print("running")
     print(input_data)
     project_path = Path(settings.BASE_DIR)
@@ -129,7 +140,12 @@ def run_code(language, code, input_data, time_limit=2):
 
     unique = str(uuid.uuid4())
 
-    code_file_name = f"{unique}.{language}"
+    if language == "java":
+        # Always name file Main.java (standard for OJ platforms)
+        code_file_name = "Main.java"
+    else:
+        code_file_name = f"{unique}.{language}"
+
     input_file_name = f"{unique}.txt"
     output_file_name = f"{unique}.txt"
 
@@ -158,22 +174,51 @@ def run_code(language, code, input_data, time_limit=2):
 
             with open(input_file_path, "r") as input_file, \
                  open(output_file_path, "w") as output_file:
-                subprocess.run(
+                result = subprocess.run(
                     [str(executable_path)],
                     stdin=input_file,
                     stdout=output_file,
-                    timeout=time_limit
+                    timeout=time_limit,
+                    preexec_fn=lambda: set_memory_limit(memory_limit)
                 )
+                if result.returncode == -signal.SIGKILL:
+                    return "Memory Limit Exceeded"
 
         elif language in ("py", "python"):
             with open(input_file_path, "r") as input_file, \
                  open(output_file_path, "w") as output_file:
-                subprocess.run(
+                result = subprocess.run(
                     ["python3", str(code_file_path)],
                     stdin=input_file,
                     stdout=output_file,
-                    timeout=time_limit
+                    timeout=time_limit,
+                    preexec_fn=lambda: set_memory_limit(memory_limit)
                 )
+                if result.returncode == -signal.SIGKILL:
+                    return "Memory Limit Exceeded"
+
+        elif language == "java":
+            # Compile
+            compile_result = subprocess.run(
+                ["javac", str(code_file_path)],
+                capture_output=True,
+                cwd=codes_dir
+            )
+            if compile_result.returncode != 0:
+                return "Compilation Error:\n" + compile_result.stderr.decode()
+
+            # Run
+            with open(input_file_path, "r") as input_file, \
+                 open(output_file_path, "w") as output_file:
+                result = subprocess.run(
+                    ["java", "-cp", str(codes_dir), "Main"],
+                    stdin=input_file,
+                    stdout=output_file,
+                    timeout=time_limit,
+                    preexec_fn=lambda: set_memory_limit(memory_limit)
+                )
+                if result.returncode == -signal.SIGKILL:
+                    return "Memory Limit Exceeded"
 
     except subprocess.TimeoutExpired:
         return "Time Limit Exceeded"
@@ -183,6 +228,8 @@ def run_code(language, code, input_data, time_limit=2):
         output_data = output_file.read()
     print(output_data)
     return output_data
+
+
 
 
 @login_required
@@ -217,7 +264,7 @@ import json
 from google import genai
 
 def ai_review(question, code):
-    client = genai.Client(api_key="AIzaSyBw8LbvPXDEWWRCi4Z7UcTtqkx8I-5KVjg")
+    client = genai.Client(api_key=api_key)
 
     prompt = f"""
     You are a code review assistant.

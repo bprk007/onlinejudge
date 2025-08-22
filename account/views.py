@@ -19,6 +19,9 @@ def is_valid_password(password):
     )
 
 def register_user(request):
+    if request.user.is_authenticated:
+        
+        return redirect("home")
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -47,7 +50,9 @@ def register_user(request):
     return HttpResponse(template.render(context,request))
 
 def login_user(request):
-
+    if request.user.is_authenticated:
+        
+        return redirect("home")
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -73,6 +78,13 @@ def login_user(request):
     return HttpResponse(template.render(context,request))
 
 def logout_user(request):
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass
     logout(request)
     messages.info(request,'logout successful')
     return redirect('/auth/login/')
+
+
+
+

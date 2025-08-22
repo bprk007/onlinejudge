@@ -238,17 +238,17 @@
 
         .difficulty.easy {
             background-color: #065f46;
-            color: #6ee7b7;
+            color: #ffffff;
         }
 
         .difficulty.medium {
             background-color: #eab308;
-            color: #fbbf24;
+            color: #ffffff;
         }
 
         .difficulty.hard {
             background-color: #dc2626;
-            color: #ef4444;
+            color: #ffffff;
         }
 
         .problem-description {
@@ -257,7 +257,7 @@
         }
 
         .example {
-            background-color: #374151;
+            background-color: #515151;
             border-radius: 0.5rem;
             padding: 1rem;
             margin: 1rem 0;
@@ -372,7 +372,7 @@
 
         .code-editor {
             flex: 1;
-            background-color: #0f172a;
+            background-color: #2c2c2c;
             color: #e2e8f0;
             border: none;
             padding: 1rem;
@@ -393,7 +393,7 @@
         }
 
         .results-panel {
-            background-color: #1e293b;
+            background-color: #373737;
             border-top: 1px solid #334155;
             height: 200px;
             /* Changed from overflow-y: auto to flex layout for sticky header */
@@ -415,8 +415,8 @@
 
         .results-tabs {
             display: flex;
-            border-bottom: 1px solid #334155;
-            background-color: #1e293b;
+            border-bottom: 1px solid #3d3d3d;
+            background-color: #343434;
             /* Make tabs sticky at top of console */
             flex-shrink: 0;
             position: sticky;
@@ -428,7 +428,7 @@
             padding: 0.75rem 1rem;
             background: none;
             border: none;
-            color: #94a3b8;
+            color: #b8b8b8;
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
@@ -679,7 +679,7 @@
                     <!-- Wrapped tab content in scrollable container -->
                     <div class="tab-content-container">
                         <div class="tab-content active" id="input-tab">
-                            <textarea name="input_data" id="input_data" placeholder="Enter your custom input here..." style="width: 100%; height: 120px; background: #1e293b; border: 1px solid #334155; border-radius: 0.375rem; padding: 0.75rem; color: #e2e8f0; font-family: 'Courier New', monospace; resize: vertical;">{{ input|default_if_none:'' }}</textarea>
+                            <textarea name="input_data" id="input_data" placeholder="Enter your custom input here..." style="width: 100%; height: 120px; background: #3e3e3e; border: 1px solid #4f4f4f; border-radius: 0.375rem; padding: 0.75rem; color: #e2e8f0; font-family: 'Courier New', monospace; resize: vertical;">{{ input|default_if_none:'' }}</textarea>
                         </div>
 
                         <div class="tab-content" id="output-tab">
@@ -734,10 +734,10 @@
       const boilerplate = JSON.parse(document.getElementById("boilerplate-data").textContent);
 
       const codeTemplates = {
-          python: boilerplate.python || "",
-          cpp:boilerplate.cpp || "" ,
-          java: boilerplate.java || ""
-      };
+                python: "def solution():\n    # Write your code here\n    pass\n\n# Test your solution\nprint(solution())",
+                cpp: "#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    // Write your code here\n};\n\nint main() {\n    Solution sol;\n    // Test your solution\n    return 0;\n}",
+                java: "class Solution {\n    // Write your code here\n    public void solution() {\n        \n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Solution sol = new Solution();\n        // Test your solution\n    }\n}"
+            };
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
         require(["vs/editor/editor.main"], function () {
             const languageSelector = document.getElementById("languageSelect");

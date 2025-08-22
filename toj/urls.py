@@ -19,10 +19,11 @@ from django.urls import path, include
 from submit import views
 from django.shortcuts import redirect
 from account.views import register_user,login_user,logout_user
+from home.views import home
 
 
 urlpatterns = [
-    path('', lambda request: redirect('login')),
+    path('', lambda request: redirect('home')),
     path('admin/', admin.site.urls),
     path('auth/login/', login_user,name='login'),
     path('auth/register',register_user,name='register'),
@@ -34,5 +35,5 @@ urlpatterns = [
     path("problems/", views.problem_list, name="problem_list"),
     path("problems/<slug:slug>/", views.submit, name="submit_with_problem"),
     path("problems/<slug:slug>/", views.problem_detail, name="problem_detail"),
-    path("home/",include('home.urls'))
+    path("home/",home, name='home')
 ]

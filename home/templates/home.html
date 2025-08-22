@@ -48,6 +48,60 @@
         .bg-gradient-hero {
             background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(245, 158, 11, 0.1));
         }
+        
+        /* Added styles for user avatar dropdown */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .user-avatar:hover {
+            background-color: var(--muted);
+        }
+        
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            min-width: 160px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-radius: 6px;
+            margin: 4px;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--secondary);
+        }
     </style>
 </head>
 <body style="background-color: var(--background); color: var(--foreground);" class="font-dm-sans">
@@ -63,13 +117,27 @@
                         <a href="{% url 'problem_list' %}" class="hover:opacity-80 transition-opacity">Problems</a>
                     </div>
                 </div>
+                <!-- Added conditional navigation based on user authentication -->
                 <div class="flex items-center space-x-4">
-                    <button class="px-4 py-2 rounded-lg border transition-colors" style="border-color: var(--border); background-color: var(--secondary);">
-                        <a href="{% url 'login' %}" class="hover:opacity-80 transition-opacity">Sign In</a>
-                    </button>
-                    <button class="px-4 py-2 rounded-lg text-white transition-colors" style="background-color: var(--primary);">
-                        <a href="{% url 'register' %}" class="hover:opacity-80 transition-opacity">Get Started</a>
-                    </button>
+                    {% if user.is_authenticated %}
+                        <div class="relative">
+                            <div class="user-avatar" onclick="toggleDropdown()">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <div id="userDropdown" class="dropdown">
+                                <div class="dropdown-item">
+                                    <a href="{% url 'logout' %}" class="block w-full text-left">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <button class="px-4 py-2 rounded-lg border transition-colors" style="border-color: var(--border); background-color: var(--secondary);">
+                            <a href="{% url 'login' %}" class="hover:opacity-80 transition-opacity">Sign In</a>
+                        </button>
+                        <button class="px-4 py-2 rounded-lg text-white transition-colors" style="background-color: var(--primary);">
+                            <a href="{% url 'register' %}" class="hover:opacity-80 transition-opacity">Get Started</a>
+                        </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -88,11 +156,11 @@
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <button class="px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:scale-105" style="background-color: var(--primary); color: var(--primary-foreground);">
-                    Start Coding Now
+                    <a href="{% url 'problem_list' %}" class="hover:opacity-80 transition-opacity">Start Coding Now</a>
                 </button>
-                <button class="px-8 py-4 rounded-lg font-semibold text-lg border transition-all hover:scale-105" style="border-color: var(--border); background-color: var(--secondary);">
-                    <a href="{% url 'problem_list' %}" class="hover:opacity-80 transition-opacity">View Problems</a>
-                </button>
+                <!-- <button class="px-8 py-4 rounded-lg font-semibold text-lg border transition-all hover:scale-105" style="border-color: var(--border); background-color: var(--secondary);">
+                    View Problems
+                </button> -->
             </div>
         </div>
     </section>
@@ -161,9 +229,27 @@
                 Join thousands of developers who are already improving their programming skills with Online Judge
             </p>
             <button class="px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:scale-105" style="background-color: var(--primary); color: var(--primary-foreground);">
-                Start Your Journey Today
+                <a href="{% url 'problem_list' %}" class="hover:opacity-80 transition-opacity">Start Your Journey Today</a>
             </button>
         </div>
     </section>
+
+    <!-- Added JavaScript for dropdown functionality -->
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
+            
+            if (!avatar.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
 </body>
 </html>
