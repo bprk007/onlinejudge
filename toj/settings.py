@@ -32,6 +32,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://geekcode.live',
+    'https://www.geekcode.live',  # if using www
+]
+
+
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'problem_list'  # or wherever you want to go after login
 LOGOUT_REDIRECT_URL = 'login'
