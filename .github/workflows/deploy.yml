@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
+
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Configure AWS credentials
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -31,51 +31,69 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # Login to Amazon ECR
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Build and push Docker image
       - name: Build and push Docker image
         run: |
           AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           IMAGE_TAG=${GITHUB_SHA::7}  # Short commit SHA
           IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}"
 
-          echo "Building and pushing Docker image..."
+          echo "Building Docker image..."
           docker build -t $IMAGE_URI:latest -t $IMAGE_URI:$IMAGE_TAG .
+
+          echo "Pushing Docker image to ECR..."
           docker push $IMAGE_URI:latest
           docker push $IMAGE_URI:$IMAGE_TAG
 
-      # Deploy on EC2
-      - name: Deploy to EC2
+      - name: Deploy on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            set -e
+
             AWS_REGION=${{ env.AWS_REGION }}
             AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
             IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"
+            CONTAINER_NAME="my-container"
+            PORT=8000
+            ENV_FILE="/home/ec2-user/.env"  # Change if different
+            LOG_FILE="/var/log/deploy.log"
 
-            echo "Logging into ECR..."
+            echo "=== Deployment started at $(date) ===" | tee -a $LOG_FILE
+
+
+            echo "[INFO] Logging into ECR..." | tee -a $LOG_FILE
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-            echo "Stopping old container if exists..."
-            docker stop my-container || true
-            docker rm my-container || true
+            echo "[INFO] Stopping old container..." | tee -a $LOG_FILE
+            docker stop $CONTAINER_NAME || true
+            docker rm $CONTAINER_NAME || true
 
-            echo "Pulling latest image from ECR..."
+            echo "[INFO] Freeing port $PORT..." | tee -a $LOG_FILE
+            fuser -k ${PORT}/tcp || true
+
+
+            echo "[INFO] Cleaning unused Docker resources..." | tee -a $LOG_FILE
+            docker system prune -af --volumes || true
+
+
+            echo "[INFO] Pulling latest image from ECR: $IMAGE_URI" | tee -a $LOG_FILE
             docker pull $IMAGE_URI
 
-            echo "Running new container with .env file..."
+
+            echo "[INFO] Running new container..." | tee -a $LOG_FILE
             docker run -d \
-              --name my-container \
-              --env-file .env \
-              -p 8000:8000 \
+              --name $CONTAINER_NAME \
+              --env-file $ENV_FILE \
+              -p ${PORT}:${PORT} \
+              --restart unless-stopped \
               $IMAGE_URI
 
-            echo "Cleaning old Docker images..."
-            docker image prune -af
+            echo "[SUCCESS] Deployment completed at $(date)" | tee -a $LOG_FILE
