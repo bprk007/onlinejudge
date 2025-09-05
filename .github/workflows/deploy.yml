@@ -1,0 +1,59 @@
+name: Deploy to AWS EC2 via ECR
+
+on:
+  push:
+    branches:
+      - main  # Change if needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Build and push Docker image
+      - name: Build and push Docker image
+        run: |
+          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"
+          docker build -t $IMAGE_URI .
+          docker push $IMAGE_URI
+
+      # Deploy on EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"
+            
+            echo "Stopping and removing old container..."
+            docker stop my-container || true
+            docker rm my-container || true
+            
+            echo "Pulling latest image from ECR..."
+            docker pull $IMAGE_URI
+            
+            echo "Running new container with .env file..."
+            docker run -d \
+              --name my-container \
+              --env-file /home/ec2-user/.env \   # Change to actual .env path
+              -p 8000:8000 \
+              $IMAGE_URI
