@@ -3,7 +3,16 @@ name: Deploy to AWS EC2 via ECR
 on:
   push:
     branches:
-      - main  # Change if needed
+      - main
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        description: 'AWS Region (e.g., ap-south-1)'
+        required: false
+        default: ''
+
+env:
+  AWS_REGION: ${{ github.event.inputs.aws_region || secrets.AWS_REGION }}
 
 jobs:
   deploy:
@@ -20,7 +29,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       # Login to Amazon ECR
       - name: Login to Amazon ECR
@@ -30,9 +39,14 @@ jobs:
       # Build and push Docker image
       - name: Build and push Docker image
         run: |
-          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"
-          docker build -t $IMAGE_URI .
-          docker push $IMAGE_URI
+          AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+          IMAGE_TAG=${GITHUB_SHA::7}  # Short commit SHA
+          IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}"
+
+          echo "Building and pushing Docker image..."
+          docker build -t $IMAGE_URI:latest -t $IMAGE_URI:$IMAGE_TAG .
+          docker push $IMAGE_URI:latest
+          docker push $IMAGE_URI:$IMAGE_TAG
 
       # Deploy on EC2
       - name: Deploy to EC2
@@ -42,18 +56,26 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"
-            
-            echo "Stopping and removing old container..."
+            AWS_REGION=${{ env.AWS_REGION }}
+            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+            IMAGE_URI="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest"
+
+            echo "Logging into ECR..."
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+            echo "Stopping old container if exists..."
             docker stop my-container || true
             docker rm my-container || true
-            
+
             echo "Pulling latest image from ECR..."
             docker pull $IMAGE_URI
-            
+
             echo "Running new container with .env file..."
             docker run -d \
               --name my-container \
-              --env-file /home/ec2-user/.env \   # Change to actual .env path
+              --env-file .env \
               -p 8000:8000 \
               $IMAGE_URI
+
+            echo "Cleaning old Docker images..."
+            docker image prune -af
