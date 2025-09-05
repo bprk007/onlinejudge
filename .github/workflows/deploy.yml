@@ -64,7 +64,7 @@ jobs:
             CONTAINER_NAME="my-container"
             PORT=8000
             ENV_FILE="/home/ec2-user/.env"  # Change if different
-            LOG_FILE="/var/log/deploy.log"
+            LOG_FILE="$HOME/deploy.log"
 
             echo "=== Deployment started at $(date) ===" | tee -a $LOG_FILE
 
